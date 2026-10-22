@@ -6,7 +6,6 @@ extends CharacterBody3D
 
 const Pose := preload("../view/zhm_pose.gd")
 const View := preload("../view/zhm_view.gd")
-const Limbs := preload("zhm_limbs.gd")
 
 ## A limb came off: `limb`, and `info` with `point`, `impulse`, `def`. The brain listens; a host may too.
 signal limb_severed(limb: StringName, info: Dictionary)
@@ -55,10 +54,11 @@ func setup(p_species: StringName, body: Dictionary, limb_defs: Dictionary = {}) 
 		add_child(view)
 
 	if limbs == null:
-		limbs = Limbs.new()
+		limbs = DotNpcLimbs.new()
 		limbs.name = "Limbs"
 		add_child(limbs)
 		limbs.connect(&"severed", _on_severed)
+	limbs.set(&"rest_model", (get_script() as Script).resource_path.get_base_dir().get_base_dir().path_join("monsters/%s.glb" % species))
 	limbs.call(&"setup", species, limb_defs, view)
 	if limb_mask != 0:
 		limbs.call(&"apply_mask", limb_mask)

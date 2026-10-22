@@ -15,7 +15,7 @@ const SPECIES_BITS := 3
 ## `action + 1`, so that 0 means "let the gait decide" (the body's -1) and no sign crosses the wire.
 const ACTION_BITS := 5
 const VARIANT_BITS := 2
-## One bit per limb (`ZhmLimbs.MAX_LIMBS`): set when it has been shot off.
+## One bit per limb (`DotNpcLimbs.MAX_LIMBS`): set when it has been shot off.
 const LIMB_BITS := 8
 
 const BODY_SCENE := "res://addons/zz_historical_monsters/runtime/zhm_body.tscn"

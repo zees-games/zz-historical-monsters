@@ -30,6 +30,6 @@ Wetness is the alpha of the baked albedo texture (0 dry hide, 1 fresh flesh and 
 
 Zombie Zone's `ZzPacks` draws a monster as one of its own zombie bodies, so the client needs no scene of ours: the big two as the brute, the cat as the leaper. The play menu's Callable moved to `spawn_fn` because the pack scan's `spawn` key could not be both.
 
-## Limbs (runtime/zhm_limbs.gd, view/zhm_gibs.gd)
+## Limbs (dot-npc: DotNpcLimbs, DotNpcGibs)
 
 Regions are lines through bone origins rather than physics shapes, so a server with no model gets the same answer from the cached rest pose that a client gets from its live skeleton (a posed limb moves by up to its radius, which the radius already allows). A limb is hidden by collapsing its root bone to a near-zero scale, which carries every bone below it; the gib is cut out of the mesh by vertex weight instead of being a scaled-away copy, because scaled-away bones leave stretched slivers across the cut. The severed set is one byte on the wire, so a late joiner sees the same body.

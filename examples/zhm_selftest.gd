@@ -16,8 +16,6 @@ const Config := preload("../addons/zz_historical_monsters/core/zhm_config.gd")
 const Catalogue := preload("../addons/zz_historical_monsters/core/zhm_catalogue.gd")
 const Host := preload("../addons/zz_historical_monsters/core/zhm_host.gd")
 const Runtime := preload("../addons/zz_historical_monsters/core/zhm_runtime.gd")
-const Gibs := preload("../addons/zz_historical_monsters/view/zhm_gibs.gd")
-const Limbs := preload("../addons/zz_historical_monsters/runtime/zhm_limbs.gd")
 const Provider := preload("../addons/zz_historical_monsters/spawn_provider.gd")
 
 const CHECKS := 170
@@ -134,7 +132,7 @@ func _test_catalogue() -> void:
 		_check(def != null and def.validate().ok, "%s validates" % sp)
 		_check(def != null and ResourceLoader.exists(def.scene_path) and ResourceLoader.exists(def.brain_script_path), "%s names a scene and a brain that exist" % sp)
 		_check(def != null and def.meta.get("species") == String(sp) and def.meta.get("cfg") is Dictionary, "%s carries its species and numbers in meta" % sp)
-		var rest := Limbs.rest_points(sp)
+		var rest := DotNpcLimbs.rest_points("res://addons/zz_historical_monsters/monsters/%s.glb" % sp)
 		var bones_ok := not rest.is_empty()
 		for limb in Config.load_config().species(sp).get("limbs", {}).values():
 			for b in limb["bones"]:
@@ -240,7 +238,7 @@ func _test_limbs() -> void:
 		_check(float(body.call(&"speed_scale")) < slow_before, "%s: losing legs slows it" % sp)
 		var view: Node3D = body.get(&"view")
 		var root := skeleton.find_bone(cfg.species(sp)["limbs"][String(names[1])]["bones"][0])
-		var gib: ArrayMesh = Gibs.limb_mesh(skeleton, view.get(&"_model"), root, "test/%s" % sp)
+		var gib: ArrayMesh = DotNpcGibs.limb_mesh(skeleton, view.get(&"_model"), root, "test/%s" % sp)
 		_check(gib != null and gib.get_surface_count() > 0, "%s: a limb can be cut from the model as its own mesh" % sp)
 		body.queue_free()
 		mirror.queue_free()

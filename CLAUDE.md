@@ -8,4 +8,4 @@ Read the family [CLAUDE.md](../../CLAUDE.md) first. Six infected animals (T-Rex,
 - Models are build products: `tools/build_monsters.sh` from `art-src/base/`. Poses are procedural bone rotations (`view/zhm_pose.gd`); the base models are static.
 - A server draws nothing: `ZhmView` does nothing in `_process` headless.
 - Replication is data in `core/zhm_net_sync.gd`; the pack never names dot-net (only `examples/zhm_net*.gd` does, and links it for the suite). Tests: `./game.sh --no-parse test zhm_selftest` and `zhm_net`. Looks: `GPU_OFFLOAD=0 tools/screenshot.sh`.
-- Limbs: `runtime/zhm_limbs.gd` (state, regions) and `view/zhm_gibs.gd` (look); numbers are `limbs:` in the yml. The body's `zhm_limb_hit` is the seam a game's shots call. Look at one with `tools/screenshot.sh trex --sever head,legL`.
+- Limbs: dot-npc's `DotNpcLimbs` (state, regions) and `DotNpcGibs` (look); this pack only supplies the yml and the model; numbers are `limbs:` in the yml. The body's `zhm_limb_hit` is the seam a game's shots call. Look at one with `tools/screenshot.sh trex --sever head,legL`.

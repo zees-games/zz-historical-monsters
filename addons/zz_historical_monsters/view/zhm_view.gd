@@ -5,7 +5,6 @@ extends Node3D
 ## or screenshot calls [method step] by hand. No `class_name`: a mounted pack's globals do not register.
 
 const Pose := preload("zhm_pose.gd")
-const Gibs := preload("zhm_gibs.gd")
 
 ## Which monster: `trex`, `tiger` or `bear`. Set before the node enters the tree.
 var species: StringName = &"trex"
@@ -179,20 +178,11 @@ func _index_bones() -> void:
 	_order = idx
 
 
-## Takes a limb off the drawn body: collapses its root bone, covers the cut and throws the limb as a gib.
-## Returns the joint in world space. [param d] is the limb's config (`bones`, `radius`, ...).
+## Takes a limb off the drawn body ([DotNpcGibs.sever]); returns the joint in world space.
 func sever_limb(limb: StringName, d: Dictionary, impulse: Vector3) -> Vector3:
 	if skeleton == null:
 		return Vector3.INF
-	var bones: Array = d.get("bones", [])
-	var root := skeleton.find_bone(String(bones[0])) if not bones.is_empty() else -1
-	if root < 0:
-		return Vector3.INF
-	var joint := skeleton.global_transform * skeleton.get_bone_global_pose(root).origin
-	Gibs.spawn_gib(self, skeleton, _model, root, limb, d, joint, impulse)
-	skeleton.set_bone_pose_scale(root, Vector3.ONE * 0.001)
-	Gibs.add_stump(skeleton, root, d)
-	return joint
+	return DotNpcGibs.sever(skeleton, _model, "%s/%s" % [species, limb], limb, d, impulse)
 
 
 func has_bone(bone: StringName) -> bool:
