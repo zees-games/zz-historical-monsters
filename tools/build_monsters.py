@@ -15,7 +15,9 @@ What it does, in order (the glb is a build product of this file, never edited by
  5. adds geometry: ribs through the flank wound, spine spurs, joint spurs, teeth, hanging flesh,
     tumours and glowing eyes;
  6. skins it to a skeleton of a dozen or so bones by distance to the bones (Blender's automatic
-    weights fail on an unwelded low-poly mesh), and exports a glb with COLOR_0 and two materials.
+    weights fail on an unwelded low-poly mesh), and exports a glb with COLOR_0 and two materials. COLOR_0's alpha is wetness (0 dry hide, 1 fresh
+flesh and gut): view/zhm_view.gd's shader turns it into gloss, so a wound's wet edge is a smooth
+per-vertex fade rather than a per-triangle material choice.
 
 Deterministic: every random choice is seeded from the species name.
 """
@@ -70,6 +72,7 @@ CONFIG = {
         ],
         "skin_dark": 0.9,
         "skin_tint": (0.62, 0.64, 0.46), "skin_tint_amount": 0.8,
+        "skin_cap": 0.8,
         "wounds": [
             (0.58, 0.58, 1.0, 1.25, 0.42, "ribs"),
             (0.64, 0.50, -1.0, 0.8, 0.22, "flesh"),
@@ -117,6 +120,7 @@ CONFIG = {
         ],
         "skin_dark": 0.62,
         "skin_tint": (0.55, 0.38, 0.22), "skin_tint_amount": 0.35,
+        "skin_cap": 0.52,
         "wounds": [
             (0.45, 0.62, 1.0, 0.55, 0.12, "ribs"),
             (0.70, 0.66, -1.0, 0.45, 0.10, "flesh"),
@@ -153,8 +157,10 @@ CONFIG = {
             ("armR_up", "spine", (0.70, 0.55, 0.5), (0.70, 0.30, 0.55)),
             ("armR_lo", "armR_up", (0.70, 0.30, 0.55), (0.72, 0.0, 0.55)),
         ],
-        "skin_dark": 0.9,
-        "skin_tint": (0.36, 0.28, 0.24), "skin_tint_amount": 0.55,
+        "skin_dark": 1.0,
+        "skin_tint": (0.50, 0.40, 0.33), "skin_tint_amount": 0.8,
+        "skin_floor": 0.32,
+        "skin_cap": 0.62,
         "wounds": [
             (0.40, 0.62, 1.0, 0.60, 0.14, "ribs"),
             (0.52, 0.62, -1.0, 0.50, 0.12, "flesh"),
@@ -368,16 +374,16 @@ for i, v in enumerate(verts):
     # Torn rim: a lip raised a little, then the sunken wound with a ragged floor.
     core = smooth(0.18, 0.5, m)
     rim = smooth(0.0, 0.18, m) * (1.0 - core)
-    ragged = 0.75 + 0.5 * (fbm(v.co, 14.0, 2, 4.2) * 0.5 + 0.5)
+    ragged = 0.85 + 0.3 * (fbm(v.co, 14.0, 2, 4.2) * 0.5 + 0.5)
     depth = 1.7 * s["depth"] * core * ragged - 0.15 * s["depth"] * rim
     v.co += v.normal * (-depth)
 
 # Relax the torn ground a little: the refined grid leaves long sliver triangles that the noise
 # turns into a sunburst of shards. Two passes of averaging keep the cavity but lose the spikes.
-for _pass in range(2):
+for _pass in range(4):
     new = {}
     for i, v in enumerate(verts):
-        if wmask[i] > 0.0 and v.link_edges:
+        if wmask[i] > -0.1 and v.link_edges:
             avg = sum((e.other_vert(v).co for e in v.link_edges), Vector()) / len(v.link_edges)
             new[v] = v.co.lerp(avg, 0.5)
     for v, c in new.items():
@@ -425,10 +431,8 @@ def mix(a, b, t):
 
 
 skin_dark = CFG["skin_dark"]
-flesh_faces = []   # faces drawn in the wet flesh material (index 2)
 sc = max(0.5, LEN / 3.0)
 for f in bm.faces:
-    tot = 0.0
     for loop in f.loops:
         v = loop.vert
         i = vidx[id(v)]
@@ -450,32 +454,56 @@ for f in bm.faces:
         crack = abs(fbm(p, 9.0 / sc, 2, 12.5))
         c1 = mix(c1, srgb((0.05, 0.03, 0.02)), smooth(0.05, 0.0, crack) * 0.8)
 
+        # keep the pale or very dark parts of the base in a range where a form and a wound read
+        cap = srgb((CFG["skin_cap"],) * 3)[0]
+        c1 = tuple(min(x, cap) for x in c1)
+        fl_ = CFG.get("skin_floor", 0.0)
+        if fl_:
+            c1 = tuple(max(x, srgb((fl_,) * 3)[0] * (0.8 + 0.4 * (j == 0))) for j, x in enumerate(c1))
+        wet = 0.0
         m = wmask[i]
         s = wkind[i]
-        if s is not None and m > 0.0:
+        if s is not None and m > -0.4:
             kind = s["kind"]
-            core = smooth(0.16, 0.34, m)
-            # pale dead skin lip, a raw red edge, then wet muscle with fibres, then a dark cavity
-            lip = smooth(0.0, 0.05, m) * (1.0 - smooth(0.05, 0.16, m))
-            edge = smooth(0.04, 0.16, m)
-            fibre = 0.55 + 0.45 * math.sin(p.y * (30.0 / sc) + fbm(p, 7.0 / sc, 2, 1.1) * 7.0)
-            marble = fbm(p, 16.0 / sc, 2, 3.7)
-            muscle = mix(tuple(x * (0.5 + 0.5 * fibre) for x in srgb(MUSCLE)), srgb((0.30, 0.02, 0.05)), smooth(-0.1, 0.3, marble) * 0.8)
-            muscle = mix(muscle, srgb((0.85, 0.62, 0.55)), smooth(0.25, 0.4, -marble) * 0.7)  # pale sinew and fat
-            inner = smooth(0.5, 0.95, m)
-            floor_c = mix(muscle, srgb(DEEP), inner * 0.9)
+            # Every band is a wide smooth ramp of the one noisy mask, so the edge is a soft
+            # gradient across several vertices and the outline follows the noise, not the mesh:
+            # bruised, necrotic rim -> pale dead lip -> raw red edge -> wet muscle -> dark cavity.
+            bruise_rim = smooth(-0.4, -0.1, m) * (1.0 - smooth(0.0, 0.16, m))
+            lip = smooth(-0.05, 0.05, m) * (1.0 - smooth(0.06, 0.2, m))
+            edge = smooth(0.04, 0.26, m)
+            core = smooth(0.18, 0.5, m)
+            inner = smooth(0.55, 1.05, m)
+            # fibres run along the muscle, so stripes vary across it, warped so they are not ruled
+            warp = fbm(p, 6.0 / sc, 2, 1.1) * 4.0
+            fibre = 0.5 + 0.5 * math.sin((p.z * 1.0 + p.x * 0.7) * (34.0 / sc) + warp)
+            fibre2 = 0.5 + 0.5 * math.sin((p.z * 0.6 - p.x * 1.0) * (61.0 / sc) + warp * 1.7)
+            streak = 0.6 + 0.4 * (0.65 * fibre + 0.35 * fibre2)
+            marble = fbm(p, 14.0 / sc, 2, 3.7)
+            muscle = tuple(x * streak for x in srgb((0.74, 0.10, 0.08)))
+            muscle = mix(muscle, srgb((0.42, 0.04, 0.06)), smooth(-0.1, 0.3, marble) * 0.7)
+            # pale fat and sinew in patches, and dark clotted blood pooled in the lower cavity
+            fat = smooth(0.18, 0.36, fbm(p, 7.0 / sc, 2, 5.1)) * smooth(0.2, 0.5, m) * (1.0 - inner * 0.6)
+            muscle = mix(muscle, srgb((0.86, 0.68, 0.50)), fat * 0.75)
+            clot = smooth(0.05, 0.3, fbm(p, 9.0 / sc, 2, 8.8)) * smooth(0.3, 0.7, m)
+            muscle = mix(muscle, srgb((0.18, 0.01, 0.015)), clot * 0.6)
+            floor_c = mix(muscle, srgb(DEEP), inner * 0.6)
+            wet_k = 1.0
             if kind == "bone":
-                floor_c = mix(floor_c, tuple(x * (0.75 + 0.25 * fibre) for x in srgb(BONE_COL)), smooth(0.25, 0.45, m) * 0.95)
+                floor_c = mix(floor_c, tuple(x * (0.8 + 0.2 * fibre) for x in srgb(BONE_COL)), smooth(0.25, 0.55, m) * 0.95)
+                wet_k = 0.5
             elif kind == "ribs":
-                floor_c = mix(srgb((0.55, 0.06, 0.07)), srgb(DEEP), smooth(0.35, 0.8, m))
+                floor_c = mix(mix(srgb((0.50, 0.05, 0.06)), srgb((0.84, 0.64, 0.50)), fat * 0.5), srgb(DEEP), smooth(0.4, 0.9, m))
+                floor_c = mix(floor_c, srgb((0.12, 0.005, 0.01)), clot * 0.8)
             elif kind == "socket":
                 floor_c = mix(srgb((0.10, 0.02, 0.05)), srgb((0.01, 0.0, 0.0)), smooth(0.3, 0.6, m))
             elif kind == "rot":
                 floor_c = mix(srgb((0.40, 0.45, 0.10)), srgb((0.10, 0.10, 0.02)), inner)
-            c1 = mix(c1, srgb(NECROTIC), lip * 0.9)
-            c1 = mix(c1, srgb((0.18, 0.02, 0.04) if kind == "socket" else (0.45, 0.04, 0.05)), edge * (1.0 - core) * 0.95)
+                wet_k = 0.6
+            c1 = mix(c1, srgb((0.22, 0.10, 0.14)), bruise_rim * 0.8)
+            c1 = mix(c1, srgb(NECROTIC), lip * 0.55)
+            c1 = mix(c1, srgb((0.18, 0.02, 0.04) if kind == "socket" else (0.50, 0.05, 0.06)), edge * (1.0 - core) * 0.9)
             c1 = mix(c1, floor_c, core)
-            tot += smooth(0.14, 0.22, m)
+            wet = smooth(0.1, 0.4, m) * wet_k * (1.0 - 0.55 * clot)
         # blood: streaks running down from every wound, and a darkening round it
         near = 1e9
         for st in sites:
@@ -487,15 +515,17 @@ for f in bm.faces:
         fl = (p.y - Y0) / LEN
         fhh = p.z / HEIGHT
         # the muzzle and chin are always wet; the mouth line is raw gum
+        muzzle = 0.0
         if fl > J["fl_min"] and fhh < J["fh_max"] + 0.02:
-            blood_t = max(blood_t, 0.85 * smooth(-0.3, 0.2, fbm(p, 6.0, 2, 2.2)))
+            muzzle = 0.85 * smooth(-0.3, 0.2, fbm(p, 6.0, 2, 2.2))
+            blood_t = max(blood_t, muzzle)
         if fl > J["fl_min"] - 0.01 and abs(fhh - J["fh_max"]) < 0.035:
-            c1 = mix(c1, srgb((0.62, 0.08, 0.10)), 0.9)
-            tot += 1.0
-        c1 = mix(c1, srgb((0.42, 0.03, 0.04)), blood_t * 0.8)
-        loop[col_layer] = (c1[0], c1[1], c1[2], 1.0)
-    if tot / len(f.loops) > 0.5:
-        flesh_faces.append(f)
+            gum = 1.0 - smooth(0.012, 0.035, abs(fhh - J["fh_max"]))
+            c1 = mix(c1, srgb((0.62, 0.08, 0.10)), 0.9 * gum)
+            wet = max(wet, 0.5 * gum)
+        c1 = mix(c1, srgb((0.30, 0.02, 0.03)), blood_t * 0.75)
+        wet = max(wet, blood_t * 0.45)
+        loop[col_layer] = (c1[0], c1[1], c1[2], min(1.0, wet))
 
 # ---------------------------------------------------------------------------------------------
 # added geometry
@@ -503,8 +533,10 @@ for f in bm.faces:
 BONE_L = srgb(BONE_COL)
 
 
-def add_tube(points, r0, r1, colour, sides=5, cap=True, wet=False):
-    """A tapering tube along a polyline, written into the same bmesh with a flat colour."""
+def add_tube(points, r0, r1, colour, sides=5, cap=True, wet=0.0, radii=None, seg_cols=None):
+    """A tapering tube along a polyline, written into the same bmesh with a flat colour. `wet` is
+    the glossiness written to the colour's alpha; `radii` (one per point) and `seg_cols` (one per
+    segment) override the linear taper and the single colour."""
     rings = []
     n = len(points)
     for k, pt in enumerate(points):
@@ -516,7 +548,7 @@ def add_tube(points, r0, r1, colour, sides=5, cap=True, wet=False):
         ref = Vector((0, 0, 1)) if abs(tang.z) < 0.9 else Vector((1, 0, 0))
         a = tang.cross(ref).normalized()
         b = tang.cross(a).normalized()
-        r = r0 + (r1 - r0) * (k / max(1, n - 1))
+        r = radii[k] if radii else r0 + (r1 - r0) * (k / max(1, n - 1))
         ring = []
         for s in range(sides):
             th = 2 * math.pi * s / sides
@@ -526,18 +558,19 @@ def add_tube(points, r0, r1, colour, sides=5, cap=True, wet=False):
     for k in range(n - 1):
         for s in range(sides):
             t = (s + 1) % sides
-            made.append(bm.faces.new([rings[k][s], rings[k][t], rings[k + 1][t], rings[k + 1][s]]))
+            f = bm.faces.new([rings[k][s], rings[k][t], rings[k + 1][t], rings[k + 1][s]])
+            made.append((f, k))
     if cap:
-        tip = bm.verts.new(points[-1] + (points[-1] - points[-2]).normalized() * max(r1, r0 * 0.25) * 1.2)
+        rl = radii[-1] if radii else r1
+        tip = bm.verts.new(points[-1] + (points[-1] - points[-2]).normalized() * max(rl, r0 * 0.25) * 1.2)
         for s in range(sides):
             t = (s + 1) % sides
-            made.append(bm.faces.new([rings[-1][s], rings[-1][t], tip]))
-    for f in made:
+            made.append((bm.faces.new([rings[-1][s], rings[-1][t], tip]), n - 2))
+    for f, k in made:
+        c = seg_cols[k] if seg_cols else colour
         for lp in f.loops:
-            lp[col_layer] = (colour[0], colour[1], colour[2], 1.0)
-        if wet:
-            flesh_faces.append(f)
-    return made
+            lp[col_layer] = (c[0], c[1], c[2], wet)
+    return [f for f, _ in made]
 
 
 def surface_normal(p):
@@ -547,29 +580,47 @@ def surface_normal(p):
 
 
 def add_ribbon(points, w0, w1, side, outer, inner):
-    """A flat strip of torn skin along a polyline: skin colour on one face, wet flesh on the back,
-    two layers a hair apart so it shows from both sides without double-sided materials."""
-    left, right = [], []
+    """A strip of torn hide with thickness: skin on the outside, wet flesh on the inside and along
+    both cut edges. Its width is ragged and tapers to a point, and it twists along its length, so
+    it is never a flat plank seen edge-on."""
     n = len(points)
+    twist = RNG.uniform(-1.1, 1.1)
+    half = 0.0045 * LEN
+    out_l, out_r, in_l, in_r = [], [], [], []
     for k, pt in enumerate(points):
-        w = (w0 + (w1 - w0) * (k / max(1, n - 1))) * (0.5 + 0.5 * RNG.uniform(0.6, 1.4) if 0 < k < n - 1 else 1.0)
-        left.append(pt + side * w)
-        right.append(pt - side * w)
-    for layer, (col, off, flip) in enumerate(((outer, 0.0, False), (inner, 1.0, True))):
-        quads = []
-        nrm = side.cross(points[-1] - points[0]).normalized() * 0.006 * LEN * (1 if layer else 0)
-        L = [bm.verts.new(q + nrm) for q in left]
-        R = [bm.verts.new(q + nrm) for q in right]
-        for k in range(n - 1):
-            vs = [L[k], R[k], R[k + 1], L[k + 1]]
-            if flip:
-                vs.reverse()
-            quads.append(bm.faces.new(vs))
-        for f in quads:
-            for lp in f.loops:
-                lp[col_layer] = (col[0], col[1], col[2], 1.0)
-            if layer:
-                flesh_faces.append(f)
+        tang = (points[min(k + 1, n - 1)] - points[max(k - 1, 0)]).normalized()
+        d = Matrix.Rotation(twist * k, 3, tang) @ (side - tang * side.dot(tang))
+        d.normalize()
+        nrm = tang.cross(d).normalized()
+        w = (w0 + (w1 - w0) * (k / max(1, n - 1))) * (RNG.uniform(0.65, 1.35) if 0 < k < n - 1 else 1.0)
+        if k == n - 1:
+            w = 0.0
+        out_l.append(bm.verts.new(pt + d * w + nrm * half))
+        out_r.append(bm.verts.new(pt - d * w + nrm * half))
+        in_l.append(bm.verts.new(pt + d * w - nrm * half))
+        in_r.append(bm.verts.new(pt - d * w - nrm * half))
+
+    def quad(vs, col, wet):
+        # the tip collapses to a point: drop the repeated corner rather than make a sliver face
+        uniq = []
+        for v in vs:
+            if (not uniq or (uniq[-1].co - v.co).length > 1e-6) and v not in uniq:
+                uniq.append(v)
+        if len(uniq) < 3:
+            return
+        try:
+            f = bm.faces.new(uniq)
+        except ValueError:
+            return
+        for lp in f.loops:
+            lp[col_layer] = (col[0], col[1], col[2], wet)
+
+    edge_col = srgb((0.50, 0.10, 0.09))
+    for k in range(n - 1):
+        quad([out_l[k], out_r[k], out_r[k + 1], out_l[k + 1]], outer, 0.0)
+        quad([in_l[k], in_l[k + 1], in_r[k + 1], in_r[k]], inner, 1.0)
+        quad([out_l[k], out_l[k + 1], in_l[k + 1], in_l[k]], edge_col, 0.9)
+        quad([out_r[k], in_r[k], in_r[k + 1], out_r[k + 1]], edge_col, 0.9)
 
 
 def add_blob(centre, radius, colour, squash=(1, 1, 1), subdiv=1):
@@ -579,7 +630,7 @@ def add_blob(centre, radius, colour, squash=(1, 1, 1), subdiv=1):
         v.co = Vector((v.co.x * squash[0], v.co.y * squash[1], v.co.z * squash[2])) + centre
     for f in {f for v in vs for f in v.link_faces}:
         for lp in f.loops:
-            lp[col_layer] = (colour[0], colour[1], colour[2], 1.0)
+            lp[col_layer] = (colour[0], colour[1], colour[2], 0.0)
     return vs
 
 
@@ -618,17 +669,24 @@ if zspine is not None:
     y1 = Y0 + rib_hi * LEN
     add_tube([Vector((rsign * ribsite["r"] * 0.0 + rsign * 0.02, y0, zspine)), Vector((rsign * 0.02, (y0 + y1) / 2, zspine)),
               Vector((rsign * 0.02, y1, zspine))], rr * 1.1, rr * 1.1, BONE_L, 6, cap=False)
-# intestines: fat pink coils out of the opened belly, looping down the flank
-gut_r = ribsite["r"] * 0.13
-for coil in range(2):
-    c0 = ribsite["c"] + Vector((0, RNG.uniform(-0.25, 0.25) * ribsite["r"], -ribsite["r"] * (0.25 + 0.2 * coil)))
-    pts = []
-    for t in np.linspace(0, 1, 9):
-        pts.append(c0 + Vector((rsign * (gut_r * 1.5 + ribsite["r"] * 0.2 * math.sin(t * math.pi)),
-                                 math.sin(t * 7.0 + coil * 2.0) * ribsite["r"] * 0.35,
-                                 -t * ribsite["r"] * (1.1 + 0.3 * coil))))
-    add_tube(pts, gut_r, gut_r * 0.85, srgb(mix(GUT, (0.45, 0.20, 0.34), coil * 0.6)), 6, wet=True)
-    add_blob(pts[-1], gut_r * 1.1, srgb(GUT), (1, 1, 1), 1)
+# intestines: thin, glossy, tapering coils with a few bulging segments, looping out of the opened
+# belly and down the flank
+gut_r = ribsite["r"] * 0.1
+GUT_TONES = [srgb(GUT), srgb((0.74, 0.40, 0.46)), srgb((0.52, 0.22, 0.34)), srgb((0.68, 0.34, 0.30))]
+for coil in range(3):
+    c0 = ribsite["c"] + Vector((0, RNG.uniform(-0.3, 0.3) * ribsite["r"], -ribsite["r"] * (0.1 + 0.2 * coil)))
+    ph = RNG.uniform(0, 6.0)
+    pts, radii, cols = [], [], []
+    N = 14
+    for k in range(N):
+        t = k / (N - 1)
+        pts.append(c0 + Vector((rsign * (gut_r * 1.6 + ribsite["r"] * (0.16 * math.sin(t * math.pi) + 0.05 * math.sin(t * 9.0 + ph))),
+                                 math.sin(t * 6.0 + ph) * ribsite["r"] * 0.3 * (0.4 + t),
+                                 -t * ribsite["r"] * (0.7 + 0.2 * coil) + math.sin(t * 11.0 + ph) * gut_r * 0.8)))
+        # segments bulge between pinches, and the whole thing tapers toward its torn end
+        radii.append(gut_r * (1.0 - 0.55 * t) * (0.78 + 0.32 * abs(math.sin(t * math.pi * 3.5 + ph))))
+        cols.append(mix(GUT_TONES[(k // 2 + coil) % 4], GUT_TONES[(k // 2 + coil + 1) % 4], 0.35) if k % 2 else GUT_TONES[(k // 2 + coil) % 4])
+    add_tube(pts, 0, 0, None, 6, wet=1.0, radii=radii, seg_cols=cols)
 
 # bone spurs through the back's skin
 (sfl0, sfl1), sn, sl = CFG["spines"]
@@ -678,7 +736,7 @@ row(CFG["mouth_lo"][0], CFG["mouth_lo"][1], half, True)
 for si, st in enumerate(sites):
     if st["kind"] == "socket":
         continue
-    nflap = 4 if st.get("major") else 1
+    nflap = 3 if st.get("major") else 1
     n = surface_normal(st["c"])
     t1 = n.cross(Vector((0, 0, 1)))
     if t1.length < 0.1:
@@ -692,16 +750,19 @@ for si, st in enumerate(sites):
         nn = surface_normal(base)
         L = st["r"] * RNG.uniform(0.6, 1.1)
         down = Vector((0, 0, -1))
-        p0 = base - nn * 0.01 * LEN
-        p1 = base + nn * L * 0.18 + down * L * 0.15
-        p2 = p1 + nn * L * 0.1 + down * L * 0.3 + Vector((RNG.uniform(-0.05, 0.05) * L, 0, 0))
-        p3 = p2 + nn * L * 0.04 + down * L * 0.3 + Vector((RNG.uniform(-0.1, 0.1) * L, RNG.uniform(-0.08, 0.08) * L, 0))
-        path = [p0, p1, p2, p3]
-        side = (p3 - p0).cross(nn)
+        sway = Vector((RNG.uniform(-1, 1), RNG.uniform(-1, 1), 0)).normalized()
+        ph = RNG.uniform(0, 6.0)
+        path = []
+        for kk in range(5):
+            t = kk / 4
+            # roots under the rim, arcs out of the wound, then hangs, curling a little at the end
+            path.append(base - nn * 0.01 * LEN + nn * L * (0.22 * math.sin(t * 2.4)) + down * L * (t * 0.95)
+                        + sway * L * 0.1 * math.sin(t * 3.0 + ph) * t)
+        side = (path[-1] - path[0]).cross(nn)
         if side.length < 1e-4:
             side = t2
         side.normalize()
-        add_ribbon(path, st["r"] * RNG.uniform(0.13, 0.22), st["r"] * 0.03, side,
+        add_ribbon(path, st["r"] * RNG.uniform(0.1, 0.18), st["r"] * 0.015, side,
                    srgb((0.40, 0.42, 0.26)), srgb((0.62, 0.06, 0.06)))
 # the lower jaw's cheek hangs in tatters
 for k in range(4):
@@ -709,9 +770,8 @@ for k in range(4):
     sgn = -1 if k % 2 == 0 else 1
     base = snap_to_surface(P(fl, J["fh_max"] - 0.02, sgn * 0.5))
     L = HEIGHT * RNG.uniform(0.07, 0.12)
-    path = [base, base + Vector((sgn * L * 0.1, 0.01 * LEN, -L * 0.4)), base + Vector((sgn * L * 0.2, 0.02 * LEN, -L * 0.8)),
-            base + Vector((sgn * L * 0.2, 0.0, -L * 1.2))]
-    add_ribbon(path, L * 0.3, L * 0.05, Vector((0, 1, 0)), srgb((0.55, 0.45, 0.32)), srgb((0.65, 0.07, 0.07)))
+    path = [base + Vector((sgn * L * 0.06 * math.sin(t * 3.0), 0.02 * LEN * t, -L * 1.2 * t)) for t in (0.0, 0.25, 0.5, 0.75, 1.0)]
+    add_ribbon(path, L * 0.17, L * 0.02, Vector((0, 1, 0)), srgb((0.55, 0.45, 0.32)), srgb((0.65, 0.07, 0.07)))
 
 # tumours: swollen, veined growths
 for k in range(CFG["tumours"]):
@@ -740,7 +800,6 @@ for fl, fh, fw in CFG["eyes"]:
 
 bm.faces.index_update()
 eye_idx = [f.index for f in eye_faces]
-flesh_idx = [f.index for f in flesh_faces if f.index not in set(eye_idx)]
 bm.to_mesh(mesh)
 bm.free()
 mesh.update()
@@ -754,7 +813,10 @@ b_bsdf = next(n for n in bn if n.type == "BSDF_PRINCIPLED")
 attr = bn.new("ShaderNodeVertexColor")
 attr.layer_name = "Col"
 body.node_tree.links.new(attr.outputs["Color"], b_bsdf.inputs["Base Color"])
-b_bsdf.inputs["Roughness"].default_value = 0.62
+# The exporter writes COLOR_0's alpha only when the material reads it; the view's shader uses it
+# as wetness, so it is routed to the Alpha input (the glb material is replaced in the game anyway).
+body.node_tree.links.new(attr.outputs["Alpha"], b_bsdf.inputs["Alpha"])
+b_bsdf.inputs["Roughness"].default_value = 0.85
 eyem = bpy.data.materials.new("EyesGlow")
 eyem.use_nodes = True
 e_bsdf = next(n for n in eyem.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
@@ -763,26 +825,13 @@ e_bsdf.inputs["Emission Color"].default_value = (1.0, 0.8, 0.02, 1)
 e_bsdf.inputs["Emission Strength"].default_value = 3.5
 mesh.materials.append(body)
 mesh.materials.append(eyem)
-# 2: wet flesh. Glossy, with a faint red self-light so a wound still reads in a dim room.
-wet = bpy.data.materials.new("WetFlesh")
-wet.use_nodes = True
-w_bsdf = next(n for n in wet.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
-wattr = wet.node_tree.nodes.new("ShaderNodeVertexColor")
-wattr.layer_name = "Col"
-wet.node_tree.links.new(wattr.outputs["Color"], w_bsdf.inputs["Base Color"])
-w_bsdf.inputs["Roughness"].default_value = 0.22
-w_bsdf.inputs["Emission Color"].default_value = (0.35, 0.03, 0.03, 1)
-w_bsdf.inputs["Emission Strength"].default_value = 0.25
-mesh.materials.append(wet)
 # clear() above reset every face to material 0, so the eyes are assigned here
-for i in flesh_idx:
-    mesh.polygons[i].material_index = 2
 for i in eye_idx:
     mesh.polygons[i].material_index = 1
 mesh.color_attributes.active_color = mesh.color_attributes["Col"]
 mesh.color_attributes.render_color_index = mesh.color_attributes.find("Col")
 for p in mesh.polygons:
-    p.use_smooth = False
+    p.use_smooth = True
 
 # ---------------------------------------------------------------------------------------------
 # skeleton and weights

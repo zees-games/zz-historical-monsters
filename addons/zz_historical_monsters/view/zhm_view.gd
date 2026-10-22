@@ -75,21 +75,50 @@ func _default_model() -> String:
 	return here.get_base_dir().get_base_dir().path_join("monsters/%s.glb" % species)
 
 
-## The model carries its colour in the vertices (no textures, so a pack stays small); the glTF
-## importer does not always switch that on for a material that has no base colour of its own.
+## Body shader. The model carries its colour in the vertices (no textures, so a pack stays small)
+## and, in the colour's alpha, how wet the surface is: 0 for dry hide, 1 for fresh flesh and gut.
+## Wetness is per vertex and so fades smoothly across a wound's edge, where a second glossy
+## material would have had to be chosen per triangle and turned every wound rim into a row of teeth.
+## Only the wet part is glossy and faintly self-lit, so a wound still reads in a dim room.
+const BODY_SHADER := """
+shader_type spatial;
+uniform float rough_dry = 0.9;
+uniform float rough_wet = 0.2;
+uniform float wet_glow = 0.3;
+void fragment() {
+	float wet = clamp(COLOR.a, 0.0, 1.0);
+	ALBEDO = COLOR.rgb;
+	ROUGHNESS = mix(rough_dry, rough_wet, wet);
+	SPECULAR = mix(0.2, 0.5, wet);
+	EMISSION = COLOR.rgb * COLOR.rgb * wet_glow * wet;
+}
+"""
+static var _body_shader: Shader
+
+
 func _use_vertex_colour(n: Node) -> void:
 	# Nothing is drawn headless, and the dummy renderer prints an error per override material
 	# when the mesh is freed.
 	if DisplayServer.get_name() == "headless":
 		return
+	if _body_shader == null:
+		_body_shader = Shader.new()
+		_body_shader.code = BODY_SHADER
 	for m in n.find_children("*", "MeshInstance3D", true, false):
 		var mi := m as MeshInstance3D
 		for s in mi.mesh.get_surface_count():
 			var mat := mi.mesh.surface_get_material(s)
 			if mat is StandardMaterial3D:
-				var copy := (mat as StandardMaterial3D).duplicate() as StandardMaterial3D
-				copy.vertex_color_use_as_albedo = true
-				mi.set_surface_override_material(s, copy)
+				var std := mat as StandardMaterial3D
+				if std.emission_enabled:
+					# the glowing eyes keep their own material
+					var eye := std.duplicate() as StandardMaterial3D
+					eye.vertex_color_use_as_albedo = true
+					mi.set_surface_override_material(s, eye)
+				else:
+					var sm := ShaderMaterial.new()
+					sm.shader = _body_shader
+					mi.set_surface_override_material(s, sm)
 
 
 func _find_skeleton(n: Node) -> Skeleton3D:
