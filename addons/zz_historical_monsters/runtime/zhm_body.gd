@@ -34,6 +34,9 @@ var _speed: float = 0.0
 ## Sizes the collider and, when something is drawn, loads the model. Called by the brain once.
 func setup(p_species: StringName, body: Dictionary, limb_defs: Dictionary = {}) -> void:
 	species = p_species
+	# A recycled body is whole again; a first setup keeps the mask a client was handed before it.
+	if limbs != null:
+		limb_mask = 0
 	var radius := float(body.get("radius", 0.6))
 	var height := maxf(float(body.get("height", 1.8)), radius * 2.0 + 0.1)
 

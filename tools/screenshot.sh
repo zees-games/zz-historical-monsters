@@ -7,6 +7,7 @@
 #   tools/screenshot.sh --all                         # every monster, idle, three-quarter view
 #   tools/screenshot.sh --sheet trex                  # one contact sheet: views x clips
 #   tools/screenshot.sh trex --sever head,legL --cam side   # with those limbs shot off
+#   tools/screenshot.sh trex --sever ~head --cam head   # the stump alone, no gib or blood
 #   OUT=/tmp/x tools/screenshot.sh bear --anims maul --variant 1
 #
 # Clips are stepped at a fixed 60 fps for --t seconds (default 0.5), so the same frame is the same

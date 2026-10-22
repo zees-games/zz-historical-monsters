@@ -125,8 +125,13 @@ func _run_shots() -> void:
 	if _args.has("sever"):
 		var defs: Dictionary = Config.load_config().species(StringName(species)).get("limbs", {})
 		for k in String(_args["sever"]).split(","):
-			if defs.has(k):
-				_view.sever_limb(StringName(k), defs[k], Vector3(0, 0, -3))
+			# A name with a leading "~" shows the stump alone, as a late joiner sees a limb already gone.
+			if defs.has(k.trim_prefix("~")):
+				var d: Dictionary = defs[k.trim_prefix("~")]
+				if k.begins_with("~"):
+					_view.stump_limb(StringName(k.trim_prefix("~")), d)
+				else:
+					_view.sever_limb(StringName(k), d, Vector3(0, 0, -3))
 		# the gib falls and the stump drips in real time
 		await get_tree().create_timer(float(_args.get("wait", 0.7))).timeout
 	var speeds := {"walk": 2.0, "run": 8.0, "stalk": 1.2, "charge": 12.0}

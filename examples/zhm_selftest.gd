@@ -18,7 +18,7 @@ const Host := preload("../addons/zz_historical_monsters/core/zhm_host.gd")
 const Runtime := preload("../addons/zz_historical_monsters/core/zhm_runtime.gd")
 const Provider := preload("../addons/zz_historical_monsters/spawn_provider.gd")
 
-const CHECKS := 170
+const CHECKS := 170 + 36
 const SECTIONS := 9
 const TRIS_MAX := 14000
 
@@ -240,9 +240,47 @@ func _test_limbs() -> void:
 		var root := skeleton.find_bone(cfg.species(sp)["limbs"][String(names[1])]["bones"][0])
 		var gib: ArrayMesh = DotNpcGibs.limb_mesh(skeleton, view.get(&"_model"), root, "test/%s" % sp)
 		_check(gib != null and gib.get_surface_count() > 0, "%s: a limb can be cut from the model as its own mesh" % sp)
+
+		# A late joiner shows what is already gone as a stump: collapsed, with a finite point.
+		var late := (load("res://addons/zz_historical_monsters/runtime/zhm_body.tscn") as PackedScene).instantiate() as Node3D
+		late.set(&"force_view", true)
+		_world.add_child(late)
+		late.call(&"setup", sp, cfg.species(sp).get("body", {}), cfg.species(sp).get("limbs", {}))
+		var points: Array = []
+		late.connect(&"limb_severed", func(_l, info: Dictionary) -> void: points.append(info["point"]))
+		late.set(&"limb_mask", 3)
+		var late_sk: Skeleton3D = late.get(&"view").skeleton
+		_check(points.size() == 2 and points.all(func(p: Vector3) -> bool: return p.is_finite()), "%s: a mask-applied limb reports a finite point" % sp, str(points))
+		_check(late_sk.get_bone_pose_scale(late_sk.find_bone("head")).x < 0.01, "%s: a mask-applied limb is collapsed" % sp)
+
+		# The gib is the whole limb even after the body's mesh was trimmed by severs.
+		var fresh := _limb_body(sp, cfg)
+		var fresh_view: Node3D = fresh.get(&"view")
+		var fresh_gib: ArrayMesh = DotNpcGibs.limb_mesh(fresh_view.skeleton, fresh_view.get(&"_model"), root, "pre/%s" % sp)
+		var sev_gib: ArrayMesh = DotNpcGibs.limb_mesh(skeleton, view.get(&"_model"), root, "post/%s" % sp)
+		_check(fresh_gib != null and sev_gib != null and fresh_gib.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size() == sev_gib.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size(), "%s: a gib cut after severs is built from the untrimmed mesh" % sp)
+
+		# A recycled body comes back whole: bones, mesh and mask.
+		var tris_before := _tri_count(view)
+		body.call(&"setup", sp, cfg.species(sp).get("body", {}), cfg.species(sp).get("limbs", {}))
+		_check(int(body.get(&"limb_mask")) == 0 and not limbs.call(&"is_severed", &"head"), "%s: setup resets the mask and the severed set" % sp)
+		_check(skeleton.get_bone_pose_scale(skeleton.find_bone("head")).x > 0.99, "%s: setup restores a collapsed bone" % sp)
+		_check(_tri_count(view) >= tris_before and _tri_count(view) == _tri_count(fresh_view), "%s: setup restores the untrimmed mesh" % sp, "%d vs %d" % [_tri_count(view), _tri_count(fresh_view)])
+		fresh.queue_free()
+		late.queue_free()
 		body.queue_free()
 		mirror.queue_free()
 	_done()
+
+
+func _tri_count(view: Node) -> int:
+	var n := 0
+	for m in view.find_children("*", "MeshInstance3D", true, false):
+		var mesh := (m as MeshInstance3D).mesh
+		if mesh != null:
+			for s in mesh.get_surface_count():
+				n += mesh.surface_get_arrays(s)[Mesh.ARRAY_INDEX].size()
+	return n
 
 
 func _test_poses() -> void:

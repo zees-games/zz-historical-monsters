@@ -185,6 +185,19 @@ func sever_limb(limb: StringName, d: Dictionary, impulse: Vector3) -> Vector3:
 	return DotNpcGibs.sever(skeleton, _model, "%s/%s" % [species, limb], limb, d, impulse)
 
 
+## Shows the stump of a limb that was already gone: no gib, no blood. Returns the joint in world space.
+func stump_limb(limb: StringName, d: Dictionary) -> Vector3:
+	if skeleton == null:
+		return Vector3.INF
+	return DotNpcGibs.sever(skeleton, _model, "%s/%s" % [species, limb], limb, d, Vector3.ZERO, true)
+
+
+## Puts every severed limb back, for a recycled body.
+func restore_limbs() -> void:
+	if skeleton != null:
+		DotNpcGibs.restore(skeleton, _model)
+
+
 func has_bone(bone: StringName) -> bool:
 	return _bones.has(bone)
 
