@@ -7,7 +7,7 @@ Implemented 2026-10-22 in dot-npc (API level 5). This pack's copy was removed; i
 - `DotNpcNetSync.limb_specs()`: the one `net_limbs` field (8 bits, one per limb in config order). Fill it from `mask()` and apply with `apply_mask()`.
 - Tuning: `limbs: {<definition id>: {<limb>: {bones, radius, tip, health, kills, slow, attack, damage_scale}}}` in `cfg/addons/dot-npc/*.yml`, read by `DotNpcLimbs.defs_from_config(id)`; a pack may keep the numbers in its own addon yml (this one does) and pass them to `setup`.
 
-Not done: the `DotHitbox.limb` field in dot-combat. dot-npc must not import dot-combat, so the shot test is a world point handed to `hit`; a game that resolves a shot to a `DotHitbox` can pass the hit point and ignore hitbox groups.
+Done in dot-combat (0df4d77): a hitbox tagged `limb` makes `DotCombatManager` call `limb_target_fn(entity).hit(point, amount, impulse)` once the damage reaches `limb_min_damage[limb]` (`cfg/addons/dot-combat/*.yml`), or emit `limb_hit`. Neither addon imports the other. `examples/zhm_shoot.gd` is the end-to-end proof: a hitscan on a tagged head sphere severs the head and the `net_limbs` bit reaches a mirror. `DotNpcLimbs.hit` finds the region from the point itself, so the tag selects which shots count and the point does the rest.
 
 ## What game-zombie-zone must do (nightly item `zz-zombie-dismember-1`)
 

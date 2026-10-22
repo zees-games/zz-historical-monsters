@@ -32,7 +32,7 @@
 GAME_NAME="zz-historical-monsters"
 PACK=""
 EXTRA_PACKS=""
-SUITES="zhm_selftest zhm_net"
+SUITES="zhm_selftest zhm_net zhm_shoot"
 # --------------------------------------------------------------------------------
 
 set -uo pipefail
