@@ -18,7 +18,7 @@ const Host := preload("../addons/zz_historical_monsters/core/zhm_host.gd")
 const Runtime := preload("../addons/zz_historical_monsters/core/zhm_runtime.gd")
 const Provider := preload("../addons/zz_historical_monsters/spawn_provider.gd")
 
-const CHECKS := 71
+const CHECKS := 74
 const SECTIONS := 8
 const TRIS_MAX := 12000
 
@@ -415,31 +415,57 @@ func _test_bear() -> void:
 
 func _test_provider() -> void:
 	_section("spawn provider")
-	var provider := Provider.new()
-	var entries := provider.spawn_entries()
+	var entries := Provider.spawn_entries()
 	_check(entries.size() == 3, "three spawn entries")
 	var ok := true
 	for e in entries:
-		for key in ["category", "id", "name", "icon", "kind", "spawn", "cfg_hint"]:
+		for key in ["category", "id", "name", "icon", "kind", "spawn", "spawn_fn", "cfg_hint"]:
 			if not e.has(key):
 				ok = false
-		if e.get("kind") != "npc" or not (e.get("spawn") is Callable) or e.get("category") != "NPCs":
+		if e.get("kind") != "npc" or not (e.get("spawn_fn") is Callable) or not (e.get("spawn") is Dictionary) or e.get("category") != "NPCs":
 			ok = false
-	_check(ok, "each entry has the contract's keys, kind npc, a Callable and category NPCs")
+	_check(ok, "each entry has the contract's keys, kind npc, a spawn Dictionary, a spawn_fn Callable and category NPCs")
 	var ids := entries.map(func(e): return e["id"])
 	_check(ids.has("zhm_trex") and ids.has("zhm_tiger") and ids.has("zhm_bear"), "ids are the catalogue's")
+
+	# The way ZzPacks loads it: by path, an instance, then called by name.
+	var loaded := load("res://addons/zz_historical_monsters/spawn_provider.gd") as GDScript
+	var inst: Object = loaded.new()
+	_check(inst.has_method(&"spawn_entries"), "a pack scan finds spawn_entries on the instance")
+	var rows: Array = inst.call(&"spawn_entries")
+	var cfg := Config.load_config()
+	var shapes_ok := rows.size() == 3
+	var boss_ids := PackedStringArray()
+	for r in rows:
+		var sp: Dictionary = r["spawn"]
+		var species := StringName(String(r["id"]).trim_prefix("zhm_"))
+		var hit: String = {&"trex": "bite", &"tiger": "claw", &"bear": "maul"}[species]
+		for key in ["health", "speed", "damage", "reach"]:
+			if not (sp.get(key) is float) or float(sp[key]) <= 0.0:
+				shapes_ok = false
+		if not (sp.get("body") is String) or sp.has("brain"):
+			shapes_ok = false
+		if not is_equal_approx(float(sp["health"]), float(cfg.species(species)["health"])) \
+				or not is_equal_approx(float(sp["damage"]), cfg.get_num(species, hit + ".damage", -1.0)) \
+				or not is_equal_approx(float(sp["reach"]), cfg.get_num(species, hit + ".reach", -1.0)) \
+				or not is_equal_approx(float(sp["speed"]), cfg.get_num(species, "run_speed", -1.0)):
+			shapes_ok = false
+		if bool(sp.get("boss", false)):
+			boss_ids.append(String(r["id"]))
+	_check(shapes_ok, "every npc row's spawn is {health, speed, damage, reach, body} from the yml")
+	_check(boss_ids == PackedStringArray(["zhm_trex"]), "only the T-Rex is marked boss", str(boss_ids))
 
 	var world := Node3D.new()
 	_world.add_child(world)
 	var entry: Dictionary = entries[1]
-	var refused: Variant = (entry["spawn"] as Callable).call({"world": world, "at": Vector3(0, 0, 0), "player_id": &"u", "authoritative": false, "cfg_hint": {}})
+	var refused: Variant = (entry["spawn_fn"] as Callable).call({"world": world, "at": Vector3(0, 0, 0), "player_id": &"u", "authoritative": false, "cfg_hint": {}})
 	_check(refused is DotResult and not refused.ok, "a client is refused")
-	var made: Variant = (entry["spawn"] as Callable).call({"world": world, "at": Vector3(0, 0, 0), "player_id": &"u", "authoritative": true, "cfg_hint": {"count": 2}})
+	var made: Variant = (entry["spawn_fn"] as Callable).call({"world": world, "at": Vector3(0, 0, 0), "player_id": &"u", "authoritative": true, "cfg_hint": {"count": 2}})
 	await get_tree().physics_frame
 	var rt := Runtime.find_or_create(world)
 	_check(made is DotResult and made.ok and rt.spawner.world_count() == 2, "the server spawns the asked count", str(rt.spawner.world_count()))
 	_check(Runtime.find_or_create(world) == rt, "a second request finds the same runtime")
-	var rex: Variant = (entries[0]["spawn"] as Callable).call({"world": world, "at": Vector3(8, 0, 0), "player_id": &"u", "authoritative": true, "cfg_hint": {"count": 3}})
+	var rex: Variant = (entries[0]["spawn_fn"] as Callable).call({"world": world, "at": Vector3(8, 0, 0), "player_id": &"u", "authoritative": true, "cfg_hint": {"count": 3}})
 	_check(rex is DotResult and rex.ok and rex.value == 1, "a T-Rex is capped at one per request", str(rex.value if rex is DotResult else rex))
 	_check(rt.spawner.world_count() == 3 and rt.describe()["monsters"] == 3, "and the runtime describes what it holds")
 	_done()

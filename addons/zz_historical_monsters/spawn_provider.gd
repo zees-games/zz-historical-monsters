@@ -4,7 +4,7 @@ extends RefCounted
 ## reads `res://addons/<pack>/spawn_provider.gd`). Duck-typed and `class_name`-free, as the contract
 ## asks: a mounted pack's globals do not register.
 ##
-## Each entry's `spawn` is a Callable the server runs with the context
+## Each entry's `spawn_fn` is a Callable the server runs with the context
 ## `{game, world, player_id, at, kind, cfg_hint, authoritative}`. It puts the monster in the game's
 ## own world under a [ZhmRuntime] (created once), so the entries need nothing from the game but a
 ## world node and a point. Damage to players leaves through the runtime's host: until a game gives
@@ -22,18 +22,41 @@ const CHANNEL := "zhm.spawn"
 const MAX_ALIVE := 6
 
 
-func spawn_entries() -> Array[Dictionary]:
+## Zombie Zone's body for each species (its `ZzPacks` draws a monster as one of its own zombie
+## bodies, so the client needs no scene of ours): the big two as the brute, the cat as the leaper.
+## The basic attack's section in the yml, per species.
+const ATTACKS := {&"trex": "bite", &"tiger": "claw", &"bear": "maul"}
+const BODIES := {&"trex": "brute", &"tiger": "leaper", &"bear": "brute"}
+
+
+## Static, because a host may call it on the script or on an instance of it.
+##
+## `spawn` is the shape Zombie Zone's pack scan reads, `{health, speed, damage, reach, body, boss?}`
+## (no `brain`: the game's own chase and bite). The play menu's Callable moved to `spawn_fn`,
+## since one key cannot be both. Numbers come from the yml through [ZhmConfig].
+static func spawn_entries() -> Array[Dictionary]:
 	var cfg := Config.load_config()
 	var out: Array[Dictionary] = []
 	for sp in Config.SPECIES:
 		var c := cfg.species(sp)
+		var hit := String(ATTACKS.get(sp, "bite"))
+		var shape := {
+			"health": float(c.get("health", 200.0)),
+			"speed": cfg.get_num(sp, "run_speed", 4.4),
+			"damage": cfg.get_num(sp, hit + ".damage", 8.0),
+			"reach": cfg.get_num(sp, hit + ".reach", 1.6),
+			"body": String(BODIES.get(sp, "common")),
+		}
+		if sp == &"trex":
+			shape["boss"] = true
 		out.append({
 			"category": "NPCs",
 			"id": String(Catalogue.id_of(sp)),
 			"name": str(c.get("name", String(sp))),
 			"icon": "res://addons/zz_historical_monsters/icons/%s.png" % String(sp),
 			"kind": "npc",
-			"spawn": _spawn.bind(sp),
+			"spawn": shape,
+			"spawn_fn": Callable(load("res://addons/zz_historical_monsters/spawn_provider.gd"), &"_spawn").bind(sp),
 			"cfg_hint": {
 				"count": 1,
 				"health": c.get("health"),
@@ -44,7 +67,7 @@ func spawn_entries() -> Array[Dictionary]:
 
 
 ## Runs on the server. Returns a DotResult (the contract allows it).
-func _spawn(ctx: Dictionary, species: StringName) -> Variant:
+static func _spawn(ctx: Dictionary, species: StringName) -> Variant:
 	if not bool(ctx.get("authoritative", false)):
 		return DotResult.fail(DotError.CODE_INVALID, "Monsters are spawned by the server.")
 	var world: Variant = ctx.get("world")

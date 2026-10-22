@@ -16,7 +16,7 @@ Every number is in `cfg/addons/zz_historical_monsters/<name>.yml` (every yml in 
 
 ## Hooking it into a game
 
-- Spawn menu: `addons/zz_historical_monsters/spawn_provider.gd` returns `spawn_entries()` in the contract's shape.
+- Spawn menu: `addons/zz_historical_monsters/spawn_provider.gd` returns `spawn_entries()` (static): `spawn` is `{health, speed, damage, reach, body, boss?}` for Zombie Zone, the play menu Callable is `spawn_fn`.
 - Damage: the monsters report to a host with `zhm_targets()`, `zhm_hit(npc, victim, amount, kind, info)` and `zhm_status(victim, status, seconds, info)`, given as the spawner's meta `zhm_host` (or `ZhmRuntime.host`). Without one they chase and the hits are recorded and signalled (`ZhmHost`).
 
 ## Credits and licences
