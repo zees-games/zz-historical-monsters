@@ -20,7 +20,7 @@ const Provider := preload("../addons/zz_historical_monsters/spawn_provider.gd")
 
 const CHECKS := 74
 const SECTIONS := 8
-const TRIS_MAX := 12000
+const TRIS_MAX := 14000
 
 var _passed := 0
 var _failed := 0

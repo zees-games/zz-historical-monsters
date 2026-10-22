@@ -8,6 +8,6 @@ The three monsters are derived from free models. The shipped `.glb` files are bu
 | Tiger | "Tiger" | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/5A3w06FXUup |
 | Bear | "Bear" (black bear) | Poly by Google | CC-BY 3.0 | https://poly.pizza/m/56ym_pyVnel |
 
-The Poly by Google models are CC-BY 3.0: credit is required and is given here and in the README. The modifications (infected skin, exposed ribs, spurs, teeth, eyes, decimation) are in `tools/build_monsters.py`.
+The Poly by Google models are CC-BY 3.0: credit is required and is given here and in the README. The modifications (infected skin, torn wound cavities with wet flesh, exposed ribs and spine, intestines, hanging skin strips, sunken eye sockets, ruined jaw, spurs, teeth, eyes, local mesh refinement) are in `tools/build_monsters.py`. Change note 2026-10-21: the bases were re-coloured, cut open and added to procedurally; no texture of the Poly by Google models ships, only colours baked into vertices.
 
 The bear's page ("Black bear", Poly by Google) was found 2026-10-21 in the Poly Pizza bear search through an archived copy of it; its file here is `art-src/base/bear_polygoogle.glb` with the "BlackBear" texture.

@@ -54,7 +54,7 @@ func _build_stage() -> void:
 	env.background_color = Color(0.07, 0.08, 0.1)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = Color(0.45, 0.5, 0.58)
-	env.ambient_light_energy = 1.4
+	env.ambient_light_energy = 2.2
 	env.glow_enabled = true
 	env.glow_intensity = 0.8
 	var we := WorldEnvironment.new()
