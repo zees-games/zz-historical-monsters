@@ -23,3 +23,4 @@ export_presets.cfg
 Thumbs.db
 .vscode/
 __pycache__/
+art-src/reference/
