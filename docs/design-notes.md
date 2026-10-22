@@ -18,9 +18,9 @@ The body's simulation does not read the pose back, and the skeletons of a thirty
 
 The base models are static meshes, so every clip is code. `_lift` is a fraction of the body's height and `_lunge` of its length. No assertion reaches a pose; look at one with `tools/screenshot.sh`.
 
-## Wetness (view/zhm_view.gd, tools/build_monsters.py)
+## Wetness (view/zhm_view.gd, tools/bake_monsters.py)
 
-COLOR_0's alpha is wetness (0 dry hide, 1 fresh flesh and gut). Per-vertex wetness fades smoothly across a wound's edge, where a second glossy material would have had to be chosen per triangle and turned every wound rim into a row of teeth. Only the wet part is glossy and faintly self-lit, so a wound still reads in a dim room.
+Wetness is the alpha of the baked albedo texture (0 dry hide, 1 fresh flesh and gut), written by `tools/bake_monsters.py` and read by the shader in `view/zhm_view.gd`, which also applies the baked normal map. It fades smoothly across a wound edge, where a second glossy material would have had to be chosen per triangle. Only the wet part is glossy and faintly self-lit, so a wound still reads in a dim room. The `.png.import` files must keep `fix_alpha_border=false`, or Godot rewrites RGB where wetness is 0.
 
 ## Config by reflection (core/zhm_config.gd)
 

@@ -51,7 +51,7 @@ func _ready() -> void:
 	var model := (packed as PackedScene).instantiate()
 	_pivot.add_child(model)
 	skeleton = _find_skeleton(model)
-	_use_vertex_colour(model)
+	_use_textures(model, path)
 
 	if skeleton == null:
 		push_error("ZhmView: %s has no skeleton" % path)
@@ -68,26 +68,35 @@ func _default_model() -> String:
 	return here.get_base_dir().get_base_dir().path_join("monsters/%s.glb" % species)
 
 
-## Body shader. Vertex colour is the hue and its alpha is wetness (0 dry hide, 1 fresh flesh), per vertex so
-## a wound fades smoothly at its edge (a second material per triangle turned rims into teeth). Only the
-## wet part is glossy and faintly self-lit.
+## Body shader. The look is baked into two textures per species (tools/bake_monsters.py): albedo, whose alpha is
+## wetness (0 dry hide, 1 fresh flesh and gut), and a tangent-space normal map. Only the wet part is glossy and
+## faintly self-lit, so a wound reads in a dim room. Wetness is a texture channel, not a second material, so a
+## wound fades smoothly at its edge instead of turning every rim into a row of teeth.
 const BODY_SHADER := """
 shader_type spatial;
+uniform sampler2D albedo_tex : source_color, filter_linear_mipmap;
+uniform sampler2D normal_tex : hint_normal, filter_linear_mipmap;
 uniform float rough_dry = 0.9;
 uniform float rough_wet = 0.2;
 uniform float wet_glow = 0.3;
+uniform float normal_depth = 1.0;
 void fragment() {
-	float wet = clamp(COLOR.a, 0.0, 1.0);
-	ALBEDO = COLOR.rgb;
+	vec4 t = texture(albedo_tex, UV);
+	float wet = clamp(t.a, 0.0, 1.0);
+	ALBEDO = t.rgb;
 	ROUGHNESS = mix(rough_dry, rough_wet, wet);
 	SPECULAR = mix(0.2, 0.5, wet);
-	EMISSION = COLOR.rgb * COLOR.rgb * wet_glow * wet;
+	NORMAL_MAP = texture(normal_tex, UV).rgb;
+	NORMAL_MAP_DEPTH = normal_depth;
+	EMISSION = t.rgb * t.rgb * wet_glow * wet;
 }
 """
 static var _body_shader: Shader
 
 
-func _use_vertex_colour(n: Node) -> void:
+## Textures sit in `textures/` beside the model, reached by the model's own folder so a mounted pack finds them
+## where it found the glb (the glb names no texture: an external dependency of a binary scene is what breaks).
+func _use_textures(n: Node, model_file: String) -> void:
 	# Nothing is drawn headless, and the dummy renderer prints an error per override material
 	# when the mesh is freed.
 	if DisplayServer.get_name() == "headless":
@@ -95,6 +104,11 @@ func _use_vertex_colour(n: Node) -> void:
 	if _body_shader == null:
 		_body_shader = Shader.new()
 		_body_shader.code = BODY_SHADER
+	var dir := model_file.get_base_dir().path_join("textures")
+	var albedo: Texture2D = load(dir.path_join("%s_albedo.png" % species)) as Texture2D
+	var normal: Texture2D = load(dir.path_join("%s_normal.png" % species)) as Texture2D
+	if albedo == null or normal == null:
+		push_error("ZhmView: no baked textures for %s in %s" % [species, dir])
 	for m in n.find_children("*", "MeshInstance3D", true, false):
 		var mi := m as MeshInstance3D
 		for s in mi.mesh.get_surface_count():
@@ -103,12 +117,12 @@ func _use_vertex_colour(n: Node) -> void:
 				var std := mat as StandardMaterial3D
 				if std.emission_enabled:
 					# the glowing eyes keep their own material
-					var eye := std.duplicate() as StandardMaterial3D
-					eye.vertex_color_use_as_albedo = true
-					mi.set_surface_override_material(s, eye)
+					mi.set_surface_override_material(s, std)
 				else:
 					var sm := ShaderMaterial.new()
 					sm.shader = _body_shader
+					sm.set_shader_parameter("albedo_tex", albedo)
+					sm.set_shader_parameter("normal_tex", normal)
 					mi.set_surface_override_material(s, sm)
 
 
