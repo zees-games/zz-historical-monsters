@@ -1,19 +1,11 @@
 extends RefCounted
 
-## Puts the three monsters in a game's spawn menu (game-playground's Q menu, and any host that
-## reads `res://addons/<pack>/spawn_provider.gd`). Duck-typed and `class_name`-free, as the contract
-## asks: a mounted pack's globals do not register.
-##
-## Each entry's `spawn_fn` is a Callable the server runs with the context
-## `{game, world, player_id, at, kind, cfg_hint, authoritative}`. It puts the monster in the game's
-## own world under a [ZhmRuntime] (created once), so the entries need nothing from the game but a
-## world node and a point. Damage to players leaves through the runtime's host: until a game gives
-## it its own (`runtime.host = ...`, the three `zhm_*` methods) the monsters chase and the hits are
-## recorded and signalled, which is honest about what is not wired yet.
-##
-## [b]Limits.[/b] `cfg_hint.count` (1 to 3, default 1) is honoured; the tiger and bear can come in
-## small numbers, the T-Rex is capped at one per request because its `cost` in the catalogue is
-## the game's budget and a menu that spawns five of them is a griefing tool.
+## Puts the three monsters in a game's spawn menu. Duck-typed and `class_name`-free, as the contract asks
+## (a mounted pack's globals do not register). Each entry's `spawn_fn` runs on the server with
+## `{game, world, player_id, at, kind, cfg_hint, authoritative}` and spawns under a [ZhmRuntime] (created once);
+## until a game sets `runtime.host`, hits are only recorded and signalled.
+## `cfg_hint.count` (1 to 3) is honoured; the T-Rex is capped at one per request because its catalogue `cost`
+## is the game's budget and five at once is a griefing tool.
 
 const Config := preload("core/zhm_config.gd")
 const Catalogue := preload("core/zhm_catalogue.gd")
@@ -30,10 +22,8 @@ const BODIES := {&"trex": "brute", &"tiger": "leaper", &"bear": "brute"}
 
 
 ## Static, because a host may call it on the script or on an instance of it.
-##
-## `spawn` is the shape Zombie Zone's pack scan reads, `{health, speed, damage, reach, body, boss?}`
-## (no `brain`: the game's own chase and bite). The play menu's Callable moved to `spawn_fn`,
-## since one key cannot be both. Numbers come from the yml through [ZhmConfig].
+## `spawn` is the shape Zombie Zone's pack scan reads, `{health, speed, damage, reach, body, boss?}` (no
+## `brain`: the game's own chase and bite). The menu's Callable is `spawn_fn`; one key cannot be both.
 static func spawn_entries() -> Array[Dictionary]:
 	var cfg := Config.load_config()
 	var out: Array[Dictionary] = []

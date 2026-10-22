@@ -1,14 +1,8 @@
 extends CharacterBody3D
 
-## One monster's body: a collider on the floor, and (where something is drawn) the skinned model.
-##
-## [b]No `class_name`[/b], like every script a pack delivers: a mounted pack's globals do not
-## register. The definition's scene points at this by path and the brain finds it by method.
-##
-## [b]The server does not draw.[/b] Under the headless display driver no model is loaded at all:
-## the skeleton of a thirty-monster horde is not worth a tick, and nothing on the server reads a
-## pose back. What replicates is [member action], one small integer, and a client's body chooses a
-## clip by it.
+## One monster's body: a collider on the floor and, where something is drawn, the skinned model.
+## No `class_name` (a mounted pack's globals do not register); the scene names this by path. Headless loads
+## no model: only [member action], one integer, replicates, and a client's body picks the clip by it.
 
 const Pose := preload("../view/zhm_pose.gd")
 const View := preload("../view/zhm_view.gd")

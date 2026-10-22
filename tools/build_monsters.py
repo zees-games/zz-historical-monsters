@@ -4,20 +4,11 @@
 
 species: trex, tiger, bear.  Run `tools/build_monsters.sh` to do all three.
 
-What it does, in order (the glb is a build product of this file, never edited by hand):
- 1. imports the base, joins it, turns it to face +Y (exported: -Z, Godot's forward), scales it to a
-    monster's size and stands it on the floor;
- 2. bakes the base's texture or material colour into a corner colour attribute, so the shipped
-    model has no textures;
- 3. welds, triangulates and subdivides it so a wound has facets to be ragged with;
- 4. cuts wounds (sunk inward, torn rim raised, muscle and bone coloured), stains blood, blotches
-    the skin with rot, and wrenches the jaw open and crooked;
- 5. adds geometry: ribs through the flank wound, spine spurs, joint spurs, teeth, hanging flesh,
-    tumours and glowing eyes;
- 6. skins it to a skeleton of a dozen or so bones by distance to the bones (Blender's automatic
-    weights fail on an unwelded low-poly mesh), and exports a glb with COLOR_0 and two materials. COLOR_0's alpha is wetness (0 dry hide, 1 fresh
-flesh and gut): view/zhm_view.gd's shader turns it into gloss, so a wound's wet edge is a smooth
-per-vertex fade rather than a per-triangle material choice.
+The glb is a build product of this file, never edited by hand. Order: import, orient and scale; bake colour into a
+corner colour attribute (no textures ship); weld, triangulate and subdivide so wounds have facets; cut wounds, stain
+and rot the skin, wrench the jaw; add ribs, spurs, teeth, hanging flesh, tumours and eyes; skin to a dozen bones by
+distance (Blender's automatic weights fail on an unwelded low-poly mesh). COLOR_0's alpha is wetness, which
+view/zhm_view.gd's shader turns into gloss.
 
 Deterministic: every random choice is seeded from the species name.
 """
@@ -185,9 +176,7 @@ CFG = CONFIG[SPECIES]
 PASSES = (1.2, 0.9) if SPECIES == "trex" else (1.1, 0.8)
 
 
-# ---------------------------------------------------------------------------------------------
 # import, orient, scale
-# ---------------------------------------------------------------------------------------------
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=BASE)
 meshes = [o for o in bpy.data.objects if o.type == "MESH" and o.visible_get() and len(o.data.polygons) > 100]
@@ -235,9 +224,7 @@ def P(fl, fh, fw=0.0):
     return Vector((fw * HALFW, Y0 + fl * LEN, fh * HEIGHT))
 
 
-# ---------------------------------------------------------------------------------------------
 # bake the base colours into a corner colour attribute
-# ---------------------------------------------------------------------------------------------
 def base_colour_sampler(mat):
     nodes = mat.node_tree.nodes
     bsdf = next(n for n in nodes if n.type == "BSDF_PRINCIPLED")
@@ -264,9 +251,7 @@ for poly in mesh.polygons:
     for li in poly.loop_indices:
         base_cols[li] = s(uv.data[li].uv if uv else (0, 0))
 
-# ---------------------------------------------------------------------------------------------
 # weld, triangulate, subdivide (corner data rides along)
-# ---------------------------------------------------------------------------------------------
 cl = mesh.attributes.new("Col", "FLOAT_COLOR", "CORNER")
 for li, c in base_cols.items():
     cl.data[li].color = (c[0], c[1], c[2], 1.0)
@@ -285,9 +270,7 @@ bmesh.ops.triangulate(bm, faces=bm.faces)
 bm.normal_update()
 col_layer = bm.loops.layers.float_color.get("Col")
 
-# ---------------------------------------------------------------------------------------------
 # infection fields
-# ---------------------------------------------------------------------------------------------
 verts = list(bm.verts)
 vco = np.array([v.co[:] for v in verts])
 
@@ -393,9 +376,7 @@ bm.normal_update()
 verts = list(bm.verts)
 vco = np.array([v.co[:] for v in verts])
 
-# ---------------------------------------------------------------------------------------------
 # a ruined jaw: swung open and crooked about its hinge, blended in over the hinge's reach
-# ---------------------------------------------------------------------------------------------
 J = CFG["jaw"]
 hinge = P(J["hinge"][0], J["hinge"][1], 0.0)
 ang = math.radians(J["open"])
@@ -419,9 +400,7 @@ bm.normal_update()
 verts = list(bm.verts)
 vco = np.array([v.co[:] for v in verts])
 
-# ---------------------------------------------------------------------------------------------
 # colour, per corner, from where the corner is
-# ---------------------------------------------------------------------------------------------
 vindex = {v.index: i for i, v in enumerate(verts)}
 vidx = {id(v): i for i, v in enumerate(verts)}
 
@@ -527,9 +506,7 @@ for f in bm.faces:
         wet = max(wet, blood_t * 0.45)
         loop[col_layer] = (c1[0], c1[1], c1[2], min(1.0, wet))
 
-# ---------------------------------------------------------------------------------------------
 # added geometry
-# ---------------------------------------------------------------------------------------------
 BONE_L = srgb(BONE_COL)
 
 
@@ -833,9 +810,7 @@ mesh.color_attributes.render_color_index = mesh.color_attributes.find("Col")
 for p in mesh.polygons:
     p.use_smooth = True
 
-# ---------------------------------------------------------------------------------------------
 # skeleton and weights
-# ---------------------------------------------------------------------------------------------
 arm_data = bpy.data.armatures.new("Skeleton")
 arm_obj = bpy.data.objects.new("Skeleton", arm_data)
 bpy.context.scene.collection.objects.link(arm_obj)

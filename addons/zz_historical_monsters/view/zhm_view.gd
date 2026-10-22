@@ -1,15 +1,8 @@
 extends Node3D
 
-## Draws one monster: loads its skinned model and poses the skeleton from what the monster looks
-## like it is doing ([member anim]).
-##
-## [b]Server and client share it, and a server never renders.[/b] The body's simulation does not
-## read the pose back, so under the headless display driver [method _process] does nothing at all:
-## thirty monsters' skeletons are not worth a server's tick. A suite or a screenshot calls
-## [method step] by hand.
-##
-## [b]No `class_name`[/b], like every script the Workshop form of this pack loads: a mounted pack's
-## globals do not register. The body names this by path.
+## Draws one monster: loads its skinned model and poses the skeleton from [member anim].
+## Under the headless display driver [method _process] does nothing (a server never renders); a suite
+## or screenshot calls [method step] by hand. No `class_name`: a mounted pack's globals do not register.
 
 const Pose := preload("zhm_pose.gd")
 
@@ -75,11 +68,9 @@ func _default_model() -> String:
 	return here.get_base_dir().get_base_dir().path_join("monsters/%s.glb" % species)
 
 
-## Body shader. The model carries its colour in the vertices (no textures, so a pack stays small)
-## and, in the colour's alpha, how wet the surface is: 0 for dry hide, 1 for fresh flesh and gut.
-## Wetness is per vertex and so fades smoothly across a wound's edge, where a second glossy
-## material would have had to be chosen per triangle and turned every wound rim into a row of teeth.
-## Only the wet part is glossy and faintly self-lit, so a wound still reads in a dim room.
+## Body shader. Vertex colour is the hue and its alpha is wetness (0 dry hide, 1 fresh flesh), per vertex so
+## a wound fades smoothly at its edge (a second material per triangle turned rims into teeth). Only the
+## wet part is glossy and faintly self-lit.
 const BODY_SHADER := """
 shader_type spatial;
 uniform float rough_dry = 0.9;

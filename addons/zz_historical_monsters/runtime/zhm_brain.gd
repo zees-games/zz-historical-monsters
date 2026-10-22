@@ -1,22 +1,9 @@
 extends "res://addons/dot_npc_ai/runtime/dot_npc_ai_brain.gd"
 
 ## The mind of all three monsters: hunt what the senses committed to, and use the special attacks
-## that suit the range. One script, three species, told apart by `meta.species` in the definition.
-##
-## [b]Server-authoritative, like every NPC.[/b] This runs only where the spawner is authoritative.
-## A client sees `body.action` replicate and draws a clip; it never decides a hit.
-##
-## [b]Extends the AI brain by PATH, never by name[/b]: a mounted pack's globals do not register.
-##
-## [b]Every attack is a telegraph and a landing.[/b] The state winds up for `windup` seconds while
-## the animation shows it coming, and the effect is applied at the end of it against whoever is
-## STILL in range then. A player who moves in time takes nothing, which is what makes a roar, a
-## tail sweep and a pounce things to react to rather than things that happen to you. The pounce
-## and the charge are the two that move the monster: they lock a direction when they start, so
-## they can be sidestepped as well.
-##
-## The effects reach the game through the host's three methods, not through anything about
-## players, so Zombie Zone and Playground (and a game that has neither) differ only in the host.
+## that suit the range. One script; `meta.species` tells the species apart. Extends the AI brain by path:
+## a mounted pack's globals do not register. Server-authoritative; every attack is a telegraph then a
+## landing against whoever is still in range, and effects leave only through the host's methods.
 
 const CHANNEL := "zhm.brain"
 const Pose := preload("../view/zhm_pose.gd")
@@ -69,7 +56,6 @@ func _build() -> void:
 			_build_bear()
 
 
-# --- State tables -------------------------------------------------------------------------
 
 func _add(state: DotNpcAiState) -> DotNpcAiState:
 	_by_id[state.id] = state
@@ -156,7 +142,6 @@ func _build_bear() -> void:
 	hunt.when(_can_bite.bind(maul), &"maul")
 
 
-# --- Conditions -----------------------------------------------------------------------------
 
 func _has_prey(_c: DotNpcAiContext) -> bool:
 	return npc != null and npc.has_target()
@@ -229,7 +214,6 @@ func _can_slam(_c: DotNpcAiContext) -> bool:
 	return near.size() >= 2 or (near.size() == 1 and _dist() <= radius * 0.55)
 
 
-# --- Movement states --------------------------------------------------------------------------
 
 func _tick_idle(_c: DotNpcAiContext) -> void:
 	var body := _body()
@@ -263,7 +247,6 @@ func _tick_halt_action(_c: DotNpcAiContext, anim: int) -> void:
 	_tick_bleeds()
 
 
-# --- Timed attacks ----------------------------------------------------------------------------
 
 func _enter_action(_c: DotNpcAiContext, id: StringName, anim: int) -> void:
 	_landed = false
@@ -314,8 +297,7 @@ func _land_claw(t: float, windup: float, attack: Dictionary) -> void:
 	_claws += 1
 	for v in _targets_within(_f(attack, "reach", 2.0) + 0.5, _facing_cone()):
 		_hit(v.id, _f(attack, "damage", 14.0), &"claw", _impulse_to(v.position, 2.0))
-		# Every third claw opens a wound: a tiger's bleed is a threat of its own, not only a rider
-		# on the pounce.
+		# Every third claw opens a wound: the bleed is a threat of its own, not only a pounce rider.
 		if _claws % 3 == 0:
 			_add_bleed(v.id)
 
@@ -368,7 +350,6 @@ func _land_slam(t: float, windup: float) -> void:
 		_status(v.id, &"stun", _f(s, "stun", 1.2))
 
 
-# --- Charge (T-Rex) -----------------------------------------------------------------------------
 
 func _enter_charge_wind(_c: DotNpcAiContext) -> void:
 	started[&"charge"] = int(started.get(&"charge", 0)) + 1
@@ -390,8 +371,7 @@ func _enter_charge(_c: DotNpcAiContext) -> void:
 	_set_action(Pose.Anim.CHARGE)
 
 
-## Runs straight along the direction locked at the end of the windup, so a player who steps aside
-## lets it past. It does not steer: that is the whole counter.
+## Runs straight along the direction locked at the end of the windup; it does not steer, so sidestepping is the counter.
 func _tick_charge(_c: DotNpcAiContext) -> void:
 	var ch: Dictionary = cfg.get("charge", {})
 	var speed := _f(ch, "speed", 13.0)
@@ -405,7 +385,6 @@ func _tick_charge(_c: DotNpcAiContext) -> void:
 		_hit(v.id, _f(ch, "damage", 60.0), &"charge", _locked_dir * _f(ch, "knockback", 14.0))
 
 
-# --- Pounce (tiger) -----------------------------------------------------------------------------
 
 func _enter_pounce_wind(_c: DotNpcAiContext) -> void:
 	started[&"pounce"] = int(started.get(&"pounce", 0)) + 1
@@ -458,7 +437,6 @@ func _tick_leap(_c: DotNpcAiContext) -> void:
 	var t := context.now - _entered_at()
 	if t < 0.12 or not b.is_on_floor():
 		return
-	# Landed. Hit whoever is under it now, once.
 	if not _landed:
 		_landed = true
 		for v in _targets_within(_f(p, "hit_radius", 1.8)):
@@ -467,7 +445,6 @@ func _tick_leap(_c: DotNpcAiContext) -> void:
 	machine.go_to(context, &"land")
 
 
-# --- Bleed ------------------------------------------------------------------------------------------
 
 func _add_bleed(victim: StringName) -> void:
 	var b: Dictionary = cfg.get("bleed", {})
@@ -478,8 +455,7 @@ func _add_bleed(victim: StringName) -> void:
 	_status(victim, &"bleed", _f(b, "duration", 6.0))
 
 
-## Ticks every wound this monster opened, from wherever it is and whatever state it is in: a bleed
-## outlives the pounce that caused it, and the tiger that made it does not have to be chasing.
+## Ticks every wound this monster opened, whatever its state: a bleed outlives the pounce.
 func _tick_bleeds() -> void:
 	if _bleeds.is_empty():
 		return
@@ -495,7 +471,6 @@ func _tick_bleeds() -> void:
 			_hit(victim, _f(b, "damage_per_second", 4.0) * float(e["stacks"]) * tick, &"bleed", Vector3.ZERO)
 
 
-# --- Helpers --------------------------------------------------------------------------------------
 
 func _body() -> Node:
 	return npc.node if npc != null else null

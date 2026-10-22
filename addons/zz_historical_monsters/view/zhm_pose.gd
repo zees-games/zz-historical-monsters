@@ -1,16 +1,9 @@
 extends RefCounted
 
 ## What a monster's body does for each thing it can be doing, as bone rotations.
-##
-## [b]The base models were static meshes, so every clip is code.[/b] A pose is a [Dictionary] of
-## bone name to [Vector3] of (pitch, yaw, roll) in degrees, each in the MODEL's own axes: +pitch
-## swings the bone's far end up and toward the front for a bone that points forward (a head up) and
-## foot forward for one that hangs (a leg), +yaw turns it to the left, +roll tips it over to its left.
-## [ZhmView] turns each into a local rotation. Two keys are not bones: [code]_root[/code] tips the
-## whole body, and [code]_lift[/code] raises or lowers it (x metres, as a fraction of the body's
-## height) and [code]_lunge[/code] shifts it forward (x) as a fraction of its length.
-##
-## [b]No assertion reaches a pose.[/b] Look at one with [code]tools/screenshot.sh[/code].
+## A pose maps bone name to Vector3 (pitch, yaw, roll) degrees in the MODEL's axes: +pitch swings a bone's far
+## end up and forward, +yaw left, +roll tips left. `_root` tips the body, `_lift` raises it and `_lunge`
+## shifts it forward, as fractions of height and length. Look at a pose with tools/screenshot.sh.
 
 ## What a monster looks like it is doing. Replicated by a host as one small integer; a client
 ## chooses a clip by it and nothing on the server reads it back. Appended, never inserted.
@@ -76,7 +69,6 @@ static func _twitch(t: float, seed_: float) -> float:
 	return sin(t * 13.0 + seed_) * sin(t * 7.3 + seed_ * 2.1)
 
 
-# --- T-Rex: biped, a long tail, tiny arms ---------------------------------------------------
 
 static func _trex(p: Dictionary, anim: int, t: float, ph: float, speed: float) -> void:
 	var run := clampf(speed / 9.0, 0.0, 1.0)
@@ -169,7 +161,6 @@ static func _trex(p: Dictionary, anim: int, t: float, ph: float, speed: float) -
 			p[&"_lift"] = -0.02
 
 
-# --- Tiger: a four-legged cat ---------------------------------------------------------------
 
 static func _quad_legs(p: Dictionary, ph: float, amp: float, bend: float, gait: float, front: bool) -> void:
 	# Diagonal pairs: front left with back right.
@@ -276,7 +267,6 @@ static func _cat(p: Dictionary, anim: int, t: float, ph: float, speed: float, va
 			p[&"_lift"] = -0.05
 
 
-# --- Bear: heavy, rears up --------------------------------------------------------------------
 
 static func _bear(p: Dictionary, anim: int, t: float, ph: float, speed: float, variant: int) -> void:
 	var run := clampf(speed / 7.0, 0.0, 1.0)

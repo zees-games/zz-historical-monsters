@@ -1,16 +1,10 @@
 class_name ZhmRuntime
 extends Node
 
-## A self-contained place to run monsters, for a game that has not wired them into its own NPC
-## spawner (and for the spawn menu, which cannot know where a game keeps one).
-##
-## It owns a [DotNpcSpawner] holding the three monsters, a [ZhmHost], and the tick that drives
-## them, and feeds the monsters their prey from [member candidates_source] (default: every node in
-## the group `players`, named by its id). A game that already runs an NPC spawner calls
-## [method attach] instead and keeps its own; either way the damage leaves through the host's
-## three methods and nothing here knows what a player is.
-##
-## [b]Server only.[/b] A non-authoritative runtime spawns nothing and ticks nothing.
+## A self-contained place to run monsters for a game that has not wired them into its own NPC spawner
+## (and for the spawn menu). Owns a [DotNpcSpawner], a [ZhmHost] and the tick; prey comes from
+## [member candidates_source] (default: group `players`). A game with its own spawner calls [method attach].
+## Server only: a non-authoritative runtime spawns and ticks nothing.
 
 const CHANNEL := "zhm.runtime"
 const Host := preload("zhm_host.gd")

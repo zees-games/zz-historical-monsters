@@ -97,7 +97,6 @@ func _floor() -> void:
 	_world.add_child(body)
 
 
-# --- Config and catalogue -----------------------------------------------------------------------
 
 func _test_config() -> void:
 	_section("config")
@@ -138,7 +137,6 @@ func _test_catalogue() -> void:
 	_done()
 
 
-# --- Models and poses -----------------------------------------------------------------------------
 
 func _view(species: StringName):
 	var v = View.new()
@@ -211,7 +209,6 @@ func _test_poses() -> void:
 	_done()
 
 
-# --- Behaviour ---------------------------------------------------------------------------------------
 
 ## A spawner with the monsters, and a recording host, in the world. [param tweak] edits the config
 ## first so a test can switch one ability off or shorten a telegraph.

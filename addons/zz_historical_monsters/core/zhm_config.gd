@@ -3,16 +3,10 @@ extends RefCounted
 
 ## Every number that tunes a monster, and where it comes from.
 ##
-## [b]The yml files are the interface, this file is the fallback.[/b] `cfg/addons/zz_historical_monsters/*.yml`
-## (one file per monster is the shipped shape, any number is read) are merged over [method defaults]
-## by dot-core's [code]DotAddonConfig[/code], then environment, then the command line. A host that
-## ships no yml, or a dot-core too old to have [code]DotAddonConfig[/code], gets exactly the numbers
-## below: a monster must spawn with nothing configured.
-##
-## [b]Reached by reflection, never named.[/b] `DotAddonConfig` landed in dot-core after this pack's
-## first consumers pinned it; naming it would make this file fail to parse against theirs, and a
-## config class that cannot parse is a pack that cannot load at all. The script is loaded by path
-## and [code]load_dir[/code] is called on it.
+## The yml files are the interface, this file is the fallback: `cfg/addons/zz_historical_monsters/*.yml` is
+## merged over [method defaults] by DotAddonConfig, then environment, then command line. With no yml a monster
+## must still spawn. DotAddonConfig is reached by reflection: naming it would fail to parse against an older
+## dot-core, and a config class that cannot parse is a pack that cannot load.
 
 const CHANNEL := "zhm.config"
 const ADDON := "zz_historical_monsters"
@@ -26,11 +20,8 @@ var source: String = "defaults"
 
 
 ## The numbers a monster has with no yml at all. Every key here is a key an operator can set.
-##
-## Distances are metres, times seconds, damage is health points on the host's own scale (a
-## survivor has about 100). A [code]windup[/code] is the telegraph: the animation winds up for that
-## long and the effect lands at its end, so a player who has moved away takes nothing. That is the
-## whole of fair melee, and it is also why every ability's range is rechecked when it lands.
+## Distances are metres, times seconds, damage is on the host's own scale (a survivor has about 100). A
+## [code]windup[/code] is the telegraph: the effect lands at its end and range is rechecked then.
 static func defaults() -> Dictionary:
 	return {
 		"trex": {

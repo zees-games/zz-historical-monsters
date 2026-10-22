@@ -3,19 +3,10 @@ extends RefCounted
 
 ## What a client needs to see a monster, as data. The pack's half of replication.
 ##
-## [b]dot-net is not named here[/b], exactly as in [DotNpcNetSync]: a host's net behaviour
-## declares one replicated field per entry of [method specs] (resolving `type` with
-## `DotNetVar.Type[spec.type]`), copies the server's row in with [method pull] each tick, and on
-## a client calls [method apply] on the mirror body it got from [method make_mirror]. The fields
-## are dot-npc's own (position, yaw, health, state) plus the three this pack adds: which species
-## to build, and what the body is doing.
-##
-## [b]Before this, monsters existed only on the server[/b]: a connected player was mauled by
-## something nobody drew, and [code]body.action[/code] (which picks the clip) never left the
-## machine that decided it.
-##
-## [b]Server-authoritative, never predicted[/b] (see dot-npc's runtime doc): [method apply] is for
-## a mirror and must never be called on a body the local brain drives.
+## dot-net is not named here, as in [DotNpcNetSync]: a host declares one replicated field per entry of
+## [method specs], copies the server's row in with [method pull] each tick, and on a client calls
+## [method apply] on a mirror from [method make_mirror]. Never call [method apply] on a body a local
+## brain drives: replication is server-authoritative.
 
 const Pose := preload("../view/zhm_pose.gd")
 const Config := preload("zhm_config.gd")
