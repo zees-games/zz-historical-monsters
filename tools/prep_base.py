@@ -1,6 +1,6 @@
 """Turns a downloaded rigged model into the static, upright base glb build_monsters.py expects.
 
-    blender -b --factory-startup --python tools/prep_base.py -- <in.gltf> <out.glb> [flip]
+    blender -b --factory-startup --python tools/prep_base.py -- <in.gltf> <out.glb> [flip] [joints] [pose]
 
 Joins the visible meshes in their bind pose, stands the length axis on Blender's Y with the head toward -Y (the
 glTF +Z the other bases use; the head end is the one with more mass), and exports one object with its materials.
@@ -21,6 +21,18 @@ arms = [o for o in bpy.data.objects if o.type == "ARMATURE"]
 joints = {b.name: (a.matrix_world @ b.head_local, a.matrix_world @ b.tail_local) for a in arms for b in a.data.bones}
 meshes = [o for o in bpy.data.objects if o.type == "MESH" and o.visible_get() and len(o.data.polygons) > 100]
 bpy.ops.object.select_all(action="DESELECT")
+if "pose" in sys.argv:
+    # Some sources only look right posed: bake frame 1 of the first action instead of the bind pose.
+    for a in arms:
+        if bpy.data.actions and a.animation_data is None:
+            a.animation_data_create()
+        if a.animation_data is not None and a.animation_data.action is None and bpy.data.actions:
+            a.animation_data.action = bpy.data.actions[0]
+    bpy.context.scene.frame_set(1)
+    deps = bpy.context.evaluated_depsgraph_get()
+    for o in meshes:
+        baked = bpy.data.meshes.new_from_object(o.evaluated_get(deps))
+        o.data = baked
 for o in meshes:
     for m in list(o.modifiers):
         o.modifiers.remove(m)
@@ -34,6 +46,9 @@ for o in list(bpy.data.objects):
         bpy.data.objects.remove(o)
 obj.parent = None
 obj.matrix_world = Matrix.Identity(4)
+# Only the first UV set carries the colour texture; build_monsters.py samples the active one.
+while len(obj.data.uv_layers) > 1:
+    obj.data.uv_layers.remove(obj.data.uv_layers[len(obj.data.uv_layers) - 1])
 obj.data.transform(world)
 vs = np.array([v.co[:] for v in obj.data.vertices])
 ext = vs.max(0) - vs.min(0)
@@ -41,6 +56,9 @@ ext = vs.max(0) - vs.min(0)
 if ext[0] > ext[1]:
     obj.data.transform(Matrix.Rotation(math.pi / 2, 4, "Z"))
     vs = np.array([v.co[:] for v in obj.data.vertices])
+# centre across the width: the bone fractions are measured from the middle of the body
+obj.data.transform(Matrix.Translation((-(vs.max(0)[0] + vs.min(0)[0]) / 2, 0, 0)))
+vs = np.array([v.co[:] for v in obj.data.vertices])
 c = vs.mean(0)
 mid = (vs.max(0)[1] + vs.min(0)[1]) / 2
 head_at_minus_y = c[1] < mid

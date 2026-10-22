@@ -95,7 +95,7 @@ func _build_stage() -> void:
 
 func _frame_camera(mode: String) -> void:
 	var sp := String(_args.get("species", "trex"))
-	var size := 11.5 if sp == "trex" else 3.2
+	var size: float = {"trex": 11.5, "allosaurus": 8.5}.get(sp, 3.2)
 	var h := size * 0.5
 	var target := Vector3(0, h * 0.5, 0)
 	var pos := Vector3.ZERO
@@ -106,7 +106,7 @@ func _frame_camera(mode: String) -> void:
 			pos = Vector3(0, h * 0.7, -size * 1.4)
 			# Models face -Z; the camera looks back toward +Z.
 		"head":
-			var hp := Vector3(0, {"trex": 4.6, "tiger": 1.3, "bear": 1.4}.get(sp, 1.5), -size * 0.42)
+			var hp := Vector3(0, {"trex": 4.6, "allosaurus": 3.2, "raptor": 1.8, "tiger": 1.3, "thylacine": 1.2, "bear": 1.4}.get(sp, 1.5), -size * 0.42)
 			target = hp
 			pos = hp + Vector3(size * 0.2, size * 0.03, -size * 0.3)
 		"back":

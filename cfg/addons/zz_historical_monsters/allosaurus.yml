@@ -1,0 +1,82 @@
+# Infected Allosaurus. Every key is optional: delete one and the built-in default applies.
+# It moves and fights as the T-Rex does (bite, tail sweep, charge, roar), smaller and quicker, with these numbers. Limbs: see trex.yml.
+# Override one value: --zz_historical_monsters.allosaurus.health=1500
+allosaurus:
+  name: Infected Allosaurus
+  health: 1100.0
+  walk_speed: 3.4
+  run_speed: 8.0
+  sight_range: 42.0
+  sight_half_angle: 70.0
+  hearing_range: 30.0
+  eye_height: 3.0
+  cost: 8
+  body:
+    radius: 0.85
+    height: 3.4
+  bite:
+    damage: 34.0
+    reach: 3.4
+    interval: 1.5
+    windup: 0.4
+  roar:
+    range: 14.0
+    stun: 2.0
+    cooldown: 18.0
+    windup: 0.9
+    min_distance: 5.0
+    slow: 0.6
+  tail_sweep:
+    radius: 5.0
+    damage: 24.0
+    knockback: 8.0
+    cooldown: 7.0
+    windup: 0.7
+    recover: 0.5
+  charge:
+    min_distance: 8.0
+    max_distance: 28.0
+    speed: 12.0
+    duration: 2.0
+    damage: 48.0
+    knockback: 11.0
+    cooldown: 11.0
+    windup: 0.9
+    hit_radius: 2.2
+    recover: 1.0
+  limbs:
+    head:
+      bones: [head, jaw]
+      radius: 0.55
+      tip: 0.5
+      health: 240.0
+      kills: true
+    armL:
+      bones: [armL]
+      radius: 0.22
+      tip: 0.6
+      health: 80.0
+      attack: 0.9
+    armR:
+      bones: [armR]
+      radius: 0.22
+      tip: 0.6
+      health: 80.0
+      attack: 0.9
+    legL:
+      bones: [legL_lo, legL_ft]
+      radius: 0.4
+      tip: 0.4
+      health: 340.0
+      slow: 0.55
+    legR:
+      bones: [legR_lo, legR_ft]
+      radius: 0.4
+      tip: 0.4
+      health: 340.0
+      slow: 0.55
+    tail:
+      bones: [tail2, tail3]
+      radius: 0.3
+      tip: 0.6
+      health: 170.0

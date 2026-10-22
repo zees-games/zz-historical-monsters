@@ -17,8 +17,8 @@ const MAX_ALIVE := 6
 ## Zombie Zone's body for each species (its `ZzPacks` draws a monster as one of its own zombie
 ## bodies, so the client needs no scene of ours): the big two as the brute, the cat as the leaper.
 ## The basic attack's section in the yml, per species.
-const ATTACKS := {&"trex": "bite", &"tiger": "claw", &"bear": "maul"}
-const BODIES := {&"trex": "brute", &"tiger": "leaper", &"bear": "brute"}
+const ATTACKS := {&"trex": "bite", &"allosaurus": "bite", &"raptor": "bite", &"tiger": "claw", &"thylacine": "claw", &"bear": "maul"}
+const BODIES := {&"trex": "brute", &"allosaurus": "brute", &"raptor": "leaper", &"tiger": "leaper", &"thylacine": "leaper", &"bear": "brute"}
 
 
 ## Static, because a host may call it on the script or on an instance of it.
@@ -50,7 +50,7 @@ static func spawn_entries() -> Array[Dictionary]:
 			"cfg_hint": {
 				"count": 1,
 				"health": c.get("health"),
-				"special": {"trex": "roar stun, tail sweep, charge", "tiger": "pounce, bleed", "bear": "maul combo, ground slam"}.get(String(sp), ""),
+				"special": {"trex": "roar stun, tail sweep, charge", "allosaurus": "roar stun, tail sweep, charge", "raptor": "lunge, tail whip", "tiger": "pounce, bleed", "thylacine": "pounce, bleed", "bear": "maul combo, ground slam"}.get(String(sp), ""),
 			},
 		})
 	return out

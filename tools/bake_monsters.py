@@ -219,6 +219,13 @@ def bake_body(idx):
     crack2 = np.abs(fbm(P, 26.0 / SC, 2, 4.4))
     crk = np.maximum(smooth(0.035, 0.0, crack), smooth(0.02, 0.0, crack2) * 0.6)
     c1 = mixa(c1, lin((0.05, 0.03, 0.02)), crk * 0.4)
+    if "stripes" in CFG:
+        # The source's colour is a flat painting with no usable fur, so the species names its own coat.
+        s0, s1, cnt = CFG["stripes"]
+        fl = (P[:, 1] - Y0) / LEN
+        band = np.sin(fl * (cnt * math.pi / (s1 - s0)) + 0.6) > 0.25
+        on = band & (fl > s0) & (fl < s1) & (P[:, 2] / HEIGHT > 0.5 - 0.5 * (fl - s0))
+        c1 = c1 * np.where(on, 0.3, 1.0)[:, None]
     grain = fbm(P, 110.0 / SC, 2, 2.7)
     c1 = c1 * (1.0 + 0.22 * grain)[:, None]
     cap = lin((CFG["skin_cap"],) * 3)[0]

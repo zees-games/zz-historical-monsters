@@ -1,6 +1,6 @@
 extends "res://addons/dot_npc_ai/runtime/dot_npc_ai_brain.gd"
 
-## The mind of all three monsters: hunt what the senses committed to, and use the special attacks
+## The mind of every monster: hunt what the senses committed to, and use the special attacks
 ## that suit the range. One script; `meta.species` tells the species apart. Extends the AI brain by path:
 ## a mounted pack's globals do not register. Server-authoritative; every attack is a telegraph then a
 ## landing against whoever is still in range, and effects leave only through the host's methods.
@@ -8,6 +8,7 @@ extends "res://addons/dot_npc_ai/runtime/dot_npc_ai_brain.gd"
 const CHANNEL := "zhm.brain"
 const Pose := preload("../view/zhm_pose.gd")
 const Host := preload("../core/zhm_host.gd")
+const Config := preload("../core/zhm_config.gd")
 
 var species: StringName = &""
 var cfg: Dictionary = {}
@@ -49,7 +50,7 @@ func _build() -> void:
 	_add(DotNpcAiState.make(&"idle", _tick_idle).when(_has_prey, &"hunt"))
 	_add(DotNpcAiState.make(&"hunt", _tick_hunt).when(_no_prey, &"idle"))
 
-	match species:
+	match Config.archetype(species):
 		&"trex":
 			_build_trex()
 		&"tiger":

@@ -2,7 +2,7 @@
 
     blender -b --factory-startup --python tools/build_monsters.py -- <species> <base.glb> <out.glb>
 
-species: trex, tiger, bear.  Run `tools/build_monsters.sh` to do all three.
+species: trex, allosaurus, raptor, tiger, thylacine, bear.  Run `tools/build_monsters.sh` to do them all.
 
 The glb is a build product of this file, never edited by hand. Order: import, orient and scale; bake colour into a
 corner colour attribute (no textures ship); weld, triangulate and subdivide so wounds have facets; cut wounds, stain
@@ -95,6 +95,92 @@ CONFIG = {
         "flaps": 7, "tumours": 5, "sores": 9,
         "rib_range": (0.52, 0.64),
     },
+    "allosaurus": {
+        "length": 8.5,
+        "decimate": 0.45,
+        "bones": [
+            ("pelvis", None, (0.55, 0.62, 0), (0.62, 0.70, 0)),
+            ("spine", "pelvis", (0.62, 0.70, 0), (0.76, 0.78, 0)),
+            ("neck", "spine", (0.76, 0.78, 0), (0.86, 0.92, 0)),
+            ("head", "neck", (0.86, 0.92, 0), (0.99, 0.88, 0)),
+            ("jaw", "head", (0.90, 0.86, 0), (1.0, 0.80, 0)),
+            ("tail1", "pelvis", (0.55, 0.60, 0), (0.40, 0.50, 0)),
+            ("tail2", "tail1", (0.40, 0.50, 0), (0.22, 0.30, 0)),
+            ("tail3", "tail2", (0.22, 0.30, 0), (0.0, 0.12, 0)),
+            ("legL_up", "pelvis", (0.60, 0.55, -0.5), (0.66, 0.30, -0.6)),
+            ("legL_lo", "legL_up", (0.66, 0.30, -0.6), (0.60, 0.14, -0.6)),
+            ("legL_ft", "legL_lo", (0.60, 0.14, -0.6), (0.70, 0.0, -0.6)),
+            ("legR_up", "pelvis", (0.60, 0.55, 0.5), (0.66, 0.30, 0.6)),
+            ("legR_lo", "legR_up", (0.66, 0.30, 0.6), (0.60, 0.14, 0.6)),
+            ("legR_ft", "legR_lo", (0.60, 0.14, 0.6), (0.70, 0.0, 0.6)),
+            ("armL", "spine", (0.80, 0.66, -0.4), (0.86, 0.42, -0.5)),
+            ("armR", "spine", (0.80, 0.66, 0.4), (0.86, 0.42, 0.5)),
+        ],
+        "skin_dark": 0.85,
+        "skin_tint": (0.5, 0.36, 0.22), "skin_tint_amount": 0.45,
+        "skin_cap": 0.75,
+        "wounds": [
+            (0.66, 0.66, 1.0, 0.75, 0.2, "ribs"),
+            (0.74, 0.55, -1.0, 0.5, 0.14, "flesh"),
+            (0.93, 0.88, -1.0, 0.32, 0.09, "bone"),
+            (0.84, 0.82, 1.0, 0.4, 0.1, "flesh"),
+            (0.38, 0.46, 0.0, 0.45, 0.12, "flesh"),
+            (0.62, 0.78, 0.0, 0.45, 0.08, "rot"),
+        ],
+        "jaw": {"hinge": (0.90, 0.86), "fh_max": 0.86, "fl_min": 0.90, "open": 22, "yaw": 9},
+        "eyes": [(0.94, 0.92, -0.35), (0.94, 0.92, 0.35)],
+        "eye_r": 0.07,
+        "mouth_up": ((0.92, 0.86, -0.4), (1.0, 0.85, 0.0)),
+        "mouth_lo": ((0.92, 0.84, -0.35), (1.0, 0.82, 0.0)),
+        "teeth": 14, "tooth": 0.16,
+        "spines": ((0.40, 0.78), 9, 0.3),
+        "spurs": [(0.66, 0.30, 0.62), (0.66, 0.30, -0.62), (0.80, 0.66, 0.42), (0.80, 0.66, -0.42)],
+        "flaps": 6, "tumours": 4, "sores": 8,
+        "rib_range": (0.60, 0.74),
+    },
+    "raptor": {
+        "length": 3.2,
+        "decimate": 0.4,
+        "bones": [
+            ("pelvis", None, (0.54, 0.68, 0), (0.58, 0.71, 0)),
+            ("spine", "pelvis", (0.58, 0.71, 0), (0.72, 0.70, 0)),
+            ("neck", "spine", (0.72, 0.70, 0), (0.85, 0.88, 0)),
+            ("head", "neck", (0.85, 0.88, 0), (0.98, 0.90, 0)),
+            ("jaw", "head", (0.87, 0.85, 0), (1.0, 0.82, 0)),
+            ("tail1", "pelvis", (0.54, 0.66, 0), (0.39, 0.70, 0)),
+            ("tail2", "tail1", (0.39, 0.70, 0), (0.23, 0.77, 0)),
+            ("tail3", "tail2", (0.23, 0.77, 0), (0.0, 0.79, 0)),
+            ("legL_up", "pelvis", (0.54, 0.65, -0.42), (0.646, 0.40, -0.46)),
+            ("legL_lo", "legL_up", (0.646, 0.40, -0.46), (0.563, 0.21, -0.5)),
+            ("legL_ft", "legL_lo", (0.563, 0.21, -0.5), (0.635, 0.04, -0.62)),
+            ("legR_up", "pelvis", (0.54, 0.65, 0.42), (0.646, 0.40, 0.46)),
+            ("legR_lo", "legR_up", (0.646, 0.40, 0.46), (0.563, 0.21, 0.5)),
+            ("legR_ft", "legR_lo", (0.563, 0.21, 0.5), (0.635, 0.04, 0.62)),
+            ("armL", "spine", (0.72, 0.68, -0.25), (0.82, 0.50, -0.48)),
+            ("armR", "spine", (0.72, 0.68, 0.25), (0.82, 0.50, 0.48)),
+        ],
+        "skin_dark": 0.8,
+        "skin_tint": (0.50, 0.40, 0.26), "skin_tint_amount": 0.55,
+        "skin_cap": 0.7,
+        "wounds": [
+            (0.62, 0.70, 1.0, 0.24, 0.06, "ribs"),
+            (0.68, 0.62, -1.0, 0.18, 0.05, "flesh"),
+            (0.92, 0.86, -1.0, 0.12, 0.04, "bone"),
+            (0.80, 0.82, 1.0, 0.15, 0.04, "flesh"),
+            (0.36, 0.72, 0.0, 0.18, 0.05, "flesh"),
+            (0.56, 0.86, 0.0, 0.2, 0.04, "rot"),
+        ],
+        "jaw": {"hinge": (0.87, 0.85), "fh_max": 0.86, "fl_min": 0.87, "open": 24, "yaw": 9},
+        "eyes": [(0.93, 0.91, -0.1), (0.93, 0.91, 0.1)],
+        "eye_r": 0.04,
+        "mouth_up": ((0.92, 0.85, -0.12), (1.0, 0.85, 0.0)),
+        "mouth_lo": ((0.92, 0.83, -0.1), (1.0, 0.82, 0.0)),
+        "teeth": 14, "tooth": 0.08,
+        "spines": ((0.30, 0.78), 8, 0.14),
+        "spurs": [(0.646, 0.40, 0.48), (0.646, 0.40, -0.48), (0.82, 0.50, 0.5), (0.82, 0.50, -0.5)],
+        "flaps": 6, "tumours": 4, "sores": 7,
+        "rib_range": (0.58, 0.70),
+    },
     "tiger": {
         "length": 3.4,
         "bones": [
@@ -141,6 +227,53 @@ CONFIG = {
         "flaps": 6, "tumours": 4,
         "rib_range": (0.36, 0.56),
     },
+    "thylacine": {
+        "length": 3.0,
+        "decimate": 0.5,
+        "bones": [
+            ("pelvis", None, (0.30, 0.62, 0), (0.42, 0.65, 0)),
+            ("spine", "pelvis", (0.42, 0.65, 0), (0.64, 0.68, 0)),
+            ("neck", "spine", (0.64, 0.68, 0), (0.82, 0.82, 0)),
+            ("head", "neck", (0.82, 0.82, 0), (0.98, 0.84, 0)),
+            ("jaw", "head", (0.90, 0.80, 0), (1.0, 0.78, 0)),
+            ("tail1", "pelvis", (0.30, 0.62, 0), (0.20, 0.52, 0)),
+            ("tail2", "tail1", (0.20, 0.52, 0), (0.10, 0.32, 0)),
+            ("tail3", "tail2", (0.10, 0.32, 0), (0.0, 0.06, 0)),
+            ("legL_up", "pelvis", (0.36, 0.58, -0.7), (0.38, 0.32, -0.85)),
+            ("legL_lo", "legL_up", (0.38, 0.32, -0.85), (0.36, 0.10, -0.9)),
+            ("legL_ft", "legL_lo", (0.36, 0.10, -0.9), (0.41, 0.0, -0.9)),
+            ("legR_up", "pelvis", (0.36, 0.58, 0.7), (0.38, 0.32, 0.85)),
+            ("legR_lo", "legR_up", (0.38, 0.32, 0.85), (0.36, 0.10, 0.9)),
+            ("legR_ft", "legR_lo", (0.36, 0.10, 0.9), (0.41, 0.0, 0.9)),
+            ("armL_up", "spine", (0.68, 0.60, -0.7), (0.68, 0.34, -0.85)),
+            ("armL_lo", "armL_up", (0.68, 0.34, -0.85), (0.67, 0.10, -0.9)),
+            ("armL_ft", "armL_lo", (0.67, 0.10, -0.9), (0.72, 0.0, -0.9)),
+            ("armR_up", "spine", (0.68, 0.60, 0.7), (0.68, 0.34, 0.85)),
+            ("armR_lo", "armR_up", (0.68, 0.34, 0.85), (0.67, 0.10, 0.9)),
+            ("armR_ft", "armR_lo", (0.67, 0.10, 0.9), (0.72, 0.0, 0.9)),
+        ],
+        "coat": (0.14, 0.08, 0.035), "stripes": (0.16, 0.5, 11),
+        "skin_dark": 0.9,
+        "skin_tint": (0.45, 0.33, 0.2), "skin_tint_amount": 0.25,
+        "skin_cap": 0.55,
+        "wounds": [
+            (0.52, 0.64, 1.0, 0.30, 0.07, "ribs"),
+            (0.70, 0.70, -1.0, 0.24, 0.06, "flesh"),
+            (0.90, 0.84, 1.0, 0.14, 0.04, "bone"),
+            (0.34, 0.66, -1.0, 0.20, 0.05, "flesh"),
+            (0.62, 0.76, 0.0, 0.20, 0.04, "rot"),
+        ],
+        "jaw": {"hinge": (0.90, 0.80), "fh_max": 0.80, "fl_min": 0.90, "open": 24, "yaw": 10},
+        "eyes": [(0.93, 0.88, -0.45), (0.93, 0.88, 0.45)],
+        "eye_r": 0.035,
+        "mouth_up": ((0.93, 0.80, -0.35), (1.0, 0.80, 0.0)),
+        "mouth_lo": ((0.93, 0.78, -0.3), (1.0, 0.78, 0.0)),
+        "teeth": 14, "tooth": 0.08,
+        "spines": ((0.30, 0.74), 8, 0.12),
+        "spurs": [(0.68, 0.34, 0.88), (0.68, 0.34, -0.88), (0.38, 0.32, 0.88), (0.38, 0.32, -0.88)],
+        "flaps": 6, "tumours": 4, "sores": 8,
+        "rib_range": (0.46, 0.62),
+    },
     "bear": {
         "length": 3.0,
         "bones": [
@@ -183,7 +316,7 @@ CONFIG = {
     },
 }
 CFG = CONFIG[SPECIES]
-PASSES = (1.2, 0.6) if SPECIES == "trex" else (1.1, 0.65)
+PASSES = (1.2, 0.6) if SPECIES in ("trex", "allosaurus", "raptor") else (1.1, 0.65)
 
 
 # import, orient, scale
@@ -248,18 +381,29 @@ def base_image(mat):
 
 
 BASE_IMGS = [base_image(m) for m in mesh.materials] or [np.array((0.5, 0.5, 0.5), dtype=np.float32)]
+if "coat" in CONFIG[SPECIES]:
+    BASE_IMGS = [np.array(CONFIG[SPECIES]["coat"], dtype=np.float32)]
 if mesh.uv_layers:
     mesh.uv_layers.active.name = "orig"
 # Corner colour carries the flat colour and wetness (alpha) of everything ADDED to the body (bone, gut, strips);
 # the body's own colour is baked per texel.
 mesh.attributes.new("Col", "FLOAT_COLOR", "CORNER")
 
+# A dense base (the dinosaur and the thylacine are scanned-looking) is reduced first: wound refinement and the
+# added parts multiply whatever it starts with, and the web budget is on the finished model.
+if "decimate" in CFG:
+    bpy.context.view_layer.objects.active = obj
+    dec = obj.modifiers.new("Decimate", "DECIMATE")
+    dec.ratio = CFG["decimate"]
+    bpy.ops.object.modifier_apply(modifier="Decimate")
+    mesh = obj.data
+
 # weld, triangulate, subdivide (corner data rides along)
 bm = bmesh.new()
 bm.from_mesh(mesh)
 bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=LEN * 0.0004)
 bmesh.ops.triangulate(bm, faces=bm.faces)
-cuts = 0 if SPECIES == "trex" else 1
+cuts = 0 if SPECIES in ("trex", "allosaurus", "raptor", "thylacine") else 1
 if cuts:
     bmesh.ops.subdivide_edges(bm, edges=bm.edges[:], cuts=cuts, use_grid_fill=True)
 bmesh.ops.triangulate(bm, faces=bm.faces)
@@ -579,7 +723,7 @@ def slab_extent(y, tol):
 ribsite = next(s for s in sites if s["kind"] == "ribs")
 rib_lo, rib_hi = CFG["rib_range"]
 rsign = 1.0 if ribsite["c"].x >= 0 else -1.0
-nrib = 7 if SPECIES == "trex" else 6
+nrib = 7 if SPECIES in ("trex", "allosaurus", "raptor") else 6
 rr = ribsite["r"] * 0.11
 zspine = None
 for k in range(nrib):

@@ -1,11 +1,14 @@
 # Zee's Historical Monsters
 
-An addon (`zz_historical_monsters`) with three infected, mutated animals that chase and kill players: a T-Rex, a tiger and a bear. It works in Zombie Zone and in any game through Dot (`games: ["*"]`).
+An addon (`zz_historical_monsters`) with six infected, mutated animals that chase and kill players: a T-Rex, an allosaurus, a raptor, a tiger, a thylacine and a bear. Every limb, the head included, can be shot off (docs/limb-hook-design.md). It works in Zombie Zone and in any game through Dot (`games: ["*"]`).
 
 | Monster | Specials (server-authoritative, each telegraphed) |
 | --- | --- |
 | T-Rex | roar (stuns everyone in range), tail sweep (everyone close), charge (locks a line, hits once, then staggers) |
 | Tiger | pounce (a locked leap that lands on whoever is still there) and a stacking bleed that outlives the fight |
+| Allosaurus | as the T-Rex, slower and heavier |
+| Raptor | as the T-Rex, fast and light (a leaper) |
+| Thylacine | as the tiger: pounce and bleed |
 | Bear | maul (a three-swing combo) and ground slam (falloff by distance, stuns) |
 
 Built on dot-npc and dot-npc-ai; everything logs through `DotLog` on `zhm.*` channels.

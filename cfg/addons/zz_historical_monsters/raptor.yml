@@ -1,0 +1,82 @@
+# Infected Raptor. Every key is optional: delete one and the built-in default applies.
+# It moves and fights as the T-Rex does (bite, tail whip as `tail_sweep`, a lunge as `charge`, a short `roar`), with these numbers.
+# Limbs: see trex.yml. Override one value: --zz_historical_monsters.raptor.health=500
+raptor:
+  name: Infected Raptor
+  health: 380.0
+  walk_speed: 3.8
+  run_speed: 10.0
+  sight_range: 40.0
+  sight_half_angle: 75.0
+  hearing_range: 30.0
+  eye_height: 1.7
+  cost: 4
+  body:
+    radius: 0.5
+    height: 1.9
+  bite:
+    damage: 16.0
+    reach: 2.0
+    interval: 0.9
+    windup: 0.25
+  roar:
+    range: 10.0
+    stun: 1.0
+    cooldown: 20.0
+    windup: 0.7
+    min_distance: 4.0
+    slow: 0.7
+  tail_sweep:
+    radius: 2.6
+    damage: 10.0
+    knockback: 5.0
+    cooldown: 6.0
+    windup: 0.5
+    recover: 0.4
+  charge:
+    min_distance: 6.0
+    max_distance: 22.0
+    speed: 15.0
+    duration: 1.6
+    damage: 24.0
+    knockback: 6.0
+    cooldown: 7.0
+    windup: 0.6
+    hit_radius: 1.4
+    recover: 0.8
+  limbs:
+    head:
+      bones: [head, jaw]
+      radius: 0.28
+      tip: 0.2
+      health: 110.0
+      kills: true
+    armL:
+      bones: [armL]
+      radius: 0.14
+      tip: 0.2
+      health: 50.0
+      attack: 0.85
+    armR:
+      bones: [armR]
+      radius: 0.14
+      tip: 0.2
+      health: 50.0
+      attack: 0.85
+    legL:
+      bones: [legL_lo, legL_ft]
+      radius: 0.2
+      tip: 0.2
+      health: 130.0
+      slow: 0.5
+    legR:
+      bones: [legR_lo, legR_ft]
+      radius: 0.2
+      tip: 0.2
+      health: 130.0
+      slow: 0.5
+    tail:
+      bones: [tail2, tail3]
+      radius: 0.14
+      tip: 0.3
+      health: 70.0

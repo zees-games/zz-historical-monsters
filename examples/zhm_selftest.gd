@@ -17,9 +17,10 @@ const Catalogue := preload("../addons/zz_historical_monsters/core/zhm_catalogue.
 const Host := preload("../addons/zz_historical_monsters/core/zhm_host.gd")
 const Runtime := preload("../addons/zz_historical_monsters/core/zhm_runtime.gd")
 const Gibs := preload("../addons/zz_historical_monsters/view/zhm_gibs.gd")
+const Limbs := preload("../addons/zz_historical_monsters/runtime/zhm_limbs.gd")
 const Provider := preload("../addons/zz_historical_monsters/spawn_provider.gd")
 
-const CHECKS := 107
+const CHECKS := 170
 const SECTIONS := 9
 const TRIS_MAX := 14000
 
@@ -103,7 +104,7 @@ func _floor() -> void:
 func _test_config() -> void:
 	_section("config")
 	var d := Config.defaults()
-	_check(d.keys().size() == 3 and d.has("trex") and d.has("tiger") and d.has("bear"), "defaults describe all three monsters")
+	_check(d.keys().size() == Config.SPECIES.size() and d.has("trex") and d.has("raptor") and d.has("tiger") and d.has("thylacine") and d.has("bear"), "defaults describe every monster")
 
 	var cfg := Config.load_config()
 	_check(cfg.source != "defaults", "the yml directory was found and read", cfg.source)
@@ -127,15 +128,21 @@ func _test_config() -> void:
 func _test_catalogue() -> void:
 	_section("catalogue")
 	var cat := Catalogue.build(Config.load_config())
-	_check(cat.size() == 3, "three definitions", str(cat.size()))
+	_check(cat.size() == Config.SPECIES.size(), "one definition per species", str(cat.size()))
 	for sp in Config.SPECIES:
 		var def := cat.get_npc(Catalogue.id_of(sp))
 		_check(def != null and def.validate().ok, "%s validates" % sp)
 		_check(def != null and ResourceLoader.exists(def.scene_path) and ResourceLoader.exists(def.brain_script_path), "%s names a scene and a brain that exist" % sp)
 		_check(def != null and def.meta.get("species") == String(sp) and def.meta.get("cfg") is Dictionary, "%s carries its species and numbers in meta" % sp)
+		var rest := Limbs.rest_points(sp)
+		var bones_ok := not rest.is_empty()
+		for limb in Config.load_config().species(sp).get("limbs", {}).values():
+			for b in limb["bones"]:
+				bones_ok = bones_ok and rest.has(StringName(b))
+		_check(bones_ok, "%s has a model, and every limb names a bone it has" % sp)
 	_check(Catalogue.species_of(&"zhm_bear") == &"bear" and Catalogue.species_of(&"nope") == &"", "ids map back to species")
 	var spawner_cat := DotNpcCatalogue.new()
-	_check(Catalogue.add_to(spawner_cat) == 3 and spawner_cat.size() == 3, "add_to puts all three in a host's own catalogue")
+	_check(Catalogue.add_to(spawner_cat) == Config.SPECIES.size() and spawner_cat.size() == Config.SPECIES.size(), "add_to puts every species in a host's own catalogue")
 	_done()
 
 
@@ -474,7 +481,7 @@ func _test_bear() -> void:
 func _test_provider() -> void:
 	_section("spawn provider")
 	var entries := Provider.spawn_entries()
-	_check(entries.size() == 3, "three spawn entries")
+	_check(entries.size() == Config.SPECIES.size(), "one spawn entry per species")
 	var ok := true
 	for e in entries:
 		for key in ["category", "id", "name", "icon", "kind", "spawn", "spawn_fn", "cfg_hint"]:
@@ -484,7 +491,7 @@ func _test_provider() -> void:
 			ok = false
 	_check(ok, "each entry has the contract's keys, kind npc, a spawn Dictionary, a spawn_fn Callable and category NPCs")
 	var ids := entries.map(func(e): return e["id"])
-	_check(ids.has("zhm_trex") and ids.has("zhm_tiger") and ids.has("zhm_bear"), "ids are the catalogue's")
+	_check(ids.has("zhm_trex") and ids.has("zhm_raptor") and ids.has("zhm_tiger") and ids.has("zhm_thylacine") and ids.has("zhm_bear"), "ids are the catalogue's")
 
 	# The way ZzPacks loads it: by path, an instance, then called by name.
 	var loaded := load("res://addons/zz_historical_monsters/spawn_provider.gd") as GDScript
@@ -492,12 +499,12 @@ func _test_provider() -> void:
 	_check(inst.has_method(&"spawn_entries"), "a pack scan finds spawn_entries on the instance")
 	var rows: Array = inst.call(&"spawn_entries")
 	var cfg := Config.load_config()
-	var shapes_ok := rows.size() == 3
+	var shapes_ok := rows.size() == Config.SPECIES.size()
 	var boss_ids := PackedStringArray()
 	for r in rows:
 		var sp: Dictionary = r["spawn"]
 		var species := StringName(String(r["id"]).trim_prefix("zhm_"))
-		var hit: String = {&"trex": "bite", &"tiger": "claw", &"bear": "maul"}[species]
+		var hit: String = Provider.ATTACKS[species]
 		for key in ["health", "speed", "damage", "reach"]:
 			if not (sp.get(key) is float) or float(sp[key]) <= 0.0:
 				shapes_ok = false

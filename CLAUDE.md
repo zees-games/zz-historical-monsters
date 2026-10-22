@@ -1,6 +1,6 @@
 # zz-historical-monsters
 
-Read the family [CLAUDE.md](../../CLAUDE.md) first. Three infected animals (T-Rex, tiger, bear) on dot-npc and dot-npc-ai. See README.md for what they do.
+Read the family [CLAUDE.md](../../CLAUDE.md) first. Six infected animals (T-Rex, allosaurus, raptor, tiger, thylacine, bear; the extra ones reuse an archetype through `Config.ARCHETYPE`) on dot-npc and dot-npc-ai. See README.md for what they do.
 
 - No `class_name` in pack-loaded scripts (`runtime/`, `view/`, `spawn_provider.gd`): they extend and preload by path. `core/` has class names.
 - Every attack is a telegraph then a landing against whoever is still in range; charge and pounce lock direction. All numbers live in the yml and `core/zhm_config.gd`.

@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Config := preload("../core/zhm_config.gd")
+
 ## What a monster's body does for each thing it can be doing, as bone rotations.
 ## A pose maps bone name to Vector3 (pitch, yaw, roll) degrees in the MODEL's axes: +pitch swings a bone's far
 ## end up and forward, +yaw left, +roll tips left. `_root` tips the body, `_lift` raises it and `_lunge`
@@ -25,7 +27,11 @@ static func stride(species: StringName) -> float:
 	match species:
 		&"trex":
 			return 0.62
-		&"tiger":
+		&"allosaurus":
+			return 0.8
+		&"raptor":
+			return 1.7
+		&"tiger", &"thylacine":
 			return 1.9
 		_:
 			return 1.5
@@ -36,7 +42,7 @@ static func stride(species: StringName) -> float:
 static func pose(species: StringName, anim: int, t: float, phase: float, speed: float, variant: int) -> Dictionary:
 	var p: Dictionary = {}
 
-	match species:
+	match Config.archetype(species):
 		&"trex":
 			_trex(p, anim, t, phase, speed)
 		&"tiger":

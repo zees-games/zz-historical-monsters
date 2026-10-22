@@ -25,7 +25,7 @@ SPECIES=(); ANIMS="idle,walk,bite"; CAM="three"; T="0.5"; VARIANT=0; SHEET=0; SE
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        --all) SPECIES=(trex tiger bear); shift ;;
+        --all) SPECIES=(trex allosaurus raptor tiger thylacine bear); shift ;;
         --anims) ANIMS="$2"; shift 2 ;;
         --cam) CAM="$2"; shift 2 ;;
         --t) T="$2"; shift 2 ;;

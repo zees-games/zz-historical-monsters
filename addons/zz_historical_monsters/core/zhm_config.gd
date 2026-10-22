@@ -10,7 +10,13 @@ extends RefCounted
 
 const CHANNEL := "zhm.config"
 const ADDON := "zz_historical_monsters"
-const SPECIES := [&"trex", &"tiger", &"bear"]
+const SPECIES := [&"trex", &"allosaurus", &"raptor", &"tiger", &"thylacine", &"bear"]
+## A species that moves and fights like another one (same skeleton names, pose and brain), with its own numbers and model.
+const ARCHETYPE := {&"allosaurus": &"trex", &"raptor": &"trex", &"thylacine": &"tiger"}
+
+
+static func archetype(species: StringName) -> StringName:
+	return ARCHETYPE.get(species, species)
 const ADDON_CONFIG_PATH := "res://addons/dot_core/core/dot_addon_config.gd"
 
 ## The merged tree: `{trex: {...}, tiger: {...}, bear: {...}}`.
@@ -48,6 +54,54 @@ static func defaults() -> Dictionary:
 				"tail": {"bones": ["tail2", "tail3"], "radius": 0.4, "tip": 0.8, "health": 220.0},
 			},
 		},
+		"allosaurus": {
+			"name": "Infected Allosaurus",
+			"health": 1100.0,
+			"walk_speed": 3.4,
+			"run_speed": 8.0,
+			"sight_range": 42.0,
+			"sight_half_angle": 70.0,
+			"hearing_range": 30.0,
+			"eye_height": 3.0,
+			"cost": 8,
+			"body": {"radius": 0.85, "height": 3.4},
+			"bite": {"damage": 34.0, "reach": 3.4, "interval": 1.5, "windup": 0.4},
+			"roar": {"range": 14.0, "stun": 2.0, "cooldown": 18.0, "windup": 0.9, "min_distance": 5.0, "slow": 0.6},
+			"tail_sweep": {"radius": 5.0, "damage": 24.0, "knockback": 8.0, "cooldown": 7.0, "windup": 0.7, "recover": 0.5},
+			"charge": {"min_distance": 8.0, "max_distance": 28.0, "speed": 12.0, "duration": 2.0, "damage": 48.0, "knockback": 11.0, "cooldown": 11.0, "windup": 0.9, "hit_radius": 2.2, "recover": 1.0},
+			"limbs": {
+				"head": {"bones": ["head", "jaw"], "radius": 0.55, "tip": 0.5, "health": 240.0, "kills": true},
+				"armL": {"bones": ["armL"], "radius": 0.22, "tip": 0.6, "health": 80.0, "attack": 0.9},
+				"armR": {"bones": ["armR"], "radius": 0.22, "tip": 0.6, "health": 80.0, "attack": 0.9},
+				"legL": {"bones": ["legL_lo", "legL_ft"], "radius": 0.4, "tip": 0.4, "health": 340.0, "slow": 0.55},
+				"legR": {"bones": ["legR_lo", "legR_ft"], "radius": 0.4, "tip": 0.4, "health": 340.0, "slow": 0.55},
+				"tail": {"bones": ["tail2", "tail3"], "radius": 0.3, "tip": 0.6, "health": 170.0},
+			},
+		},
+		"raptor": {
+			"name": "Infected Raptor",
+			"health": 380.0,
+			"walk_speed": 3.8,
+			"run_speed": 10.0,
+			"sight_range": 40.0,
+			"sight_half_angle": 75.0,
+			"hearing_range": 30.0,
+			"eye_height": 1.7,
+			"cost": 4,
+			"body": {"radius": 0.5, "height": 1.9},
+			"bite": {"damage": 16.0, "reach": 2.0, "interval": 0.9, "windup": 0.25},
+			"roar": {"range": 10.0, "stun": 1.0, "cooldown": 20.0, "windup": 0.7, "min_distance": 4.0, "slow": 0.7},
+			"tail_sweep": {"radius": 2.6, "damage": 10.0, "knockback": 5.0, "cooldown": 6.0, "windup": 0.5, "recover": 0.4},
+			"charge": {"min_distance": 6.0, "max_distance": 22.0, "speed": 15.0, "duration": 1.6, "damage": 24.0, "knockback": 6.0, "cooldown": 7.0, "windup": 0.6, "hit_radius": 1.4, "recover": 0.8},
+			"limbs": {
+				"head": {"bones": ["head", "jaw"], "radius": 0.28, "tip": 0.2, "health": 110.0, "kills": true},
+				"armL": {"bones": ["armL"], "radius": 0.14, "tip": 0.2, "health": 50.0, "attack": 0.85},
+				"armR": {"bones": ["armR"], "radius": 0.14, "tip": 0.2, "health": 50.0, "attack": 0.85},
+				"legL": {"bones": ["legL_lo", "legL_ft"], "radius": 0.2, "tip": 0.2, "health": 130.0, "slow": 0.5},
+				"legR": {"bones": ["legR_lo", "legR_ft"], "radius": 0.2, "tip": 0.2, "health": 130.0, "slow": 0.5},
+				"tail": {"bones": ["tail2", "tail3"], "radius": 0.14, "tip": 0.3, "health": 70.0},
+			},
+		},
 		"tiger": {
 			"name": "Infected Tiger",
 			"health": 520.0,
@@ -69,6 +123,29 @@ static func defaults() -> Dictionary:
 				"hindL": {"bones": ["legL_lo", "legL_ft"], "radius": 0.17, "tip": 0.2, "health": 80.0, "slow": 0.6},
 				"hindR": {"bones": ["legR_lo", "legR_ft"], "radius": 0.17, "tip": 0.2, "health": 80.0, "slow": 0.6},
 				"tail": {"bones": ["tail2", "tail3"], "radius": 0.12, "tip": 0.2, "health": 40.0},
+			},
+		},
+		"thylacine": {
+			"name": "Infected Thylacine",
+			"health": 330.0,
+			"walk_speed": 3.4,
+			"run_speed": 9.0,
+			"sight_range": 36.0,
+			"sight_half_angle": 80.0,
+			"hearing_range": 30.0,
+			"eye_height": 1.0,
+			"cost": 3,
+			"body": {"radius": 0.45, "height": 1.3},
+			"claw": {"damage": 11.0, "reach": 1.8, "interval": 0.8, "windup": 0.25},
+			"pounce": {"min_distance": 3.5, "max_distance": 14.0, "speed": 15.0, "damage": 18.0, "cooldown": 6.0, "windup": 0.6, "hit_radius": 1.6, "recover": 0.7, "arc": 1.8},
+			"bleed": {"damage_per_second": 3.0, "duration": 6.0, "max_stacks": 3, "tick": 1.0},
+			"limbs": {
+				"head": {"bones": ["head", "jaw"], "radius": 0.25, "tip": 0.25, "health": 90.0, "kills": true},
+				"foreL": {"bones": ["armL_lo", "armL_ft"], "radius": 0.13, "tip": 0.2, "health": 60.0, "slow": 0.8, "attack": 0.8},
+				"foreR": {"bones": ["armR_lo", "armR_ft"], "radius": 0.13, "tip": 0.2, "health": 60.0, "slow": 0.8, "attack": 0.8},
+				"hindL": {"bones": ["legL_lo", "legL_ft"], "radius": 0.15, "tip": 0.2, "health": 70.0, "slow": 0.6},
+				"hindR": {"bones": ["legR_lo", "legR_ft"], "radius": 0.15, "tip": 0.2, "health": 70.0, "slow": 0.6},
+				"tail": {"bones": ["tail2", "tail3"], "radius": 0.1, "tip": 0.2, "health": 35.0},
 			},
 		},
 		"bear": {
