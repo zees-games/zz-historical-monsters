@@ -11,10 +11,12 @@ extends RefCounted
 const Pose := preload("../view/zhm_pose.gd")
 const Config := preload("zhm_config.gd")
 
-const SPECIES_BITS := 2
+const SPECIES_BITS := 3
 ## `action + 1`, so that 0 means "let the gait decide" (the body's -1) and no sign crosses the wire.
 const ACTION_BITS := 5
 const VARIANT_BITS := 2
+## One bit per limb (`ZhmLimbs.MAX_LIMBS`): set when it has been shot off.
+const LIMB_BITS := 8
 
 const BODY_SCENE := "res://addons/zz_historical_monsters/runtime/zhm_body.tscn"
 
@@ -25,6 +27,7 @@ static func specs() -> Array[Dictionary]:
 	out.append({"property": &"net_species", "type": "UINT", "bits": SPECIES_BITS, "interpolated": false})
 	out.append({"property": &"net_action", "type": "UINT", "bits": ACTION_BITS, "interpolated": false})
 	out.append({"property": &"net_variant", "type": "UINT", "bits": VARIANT_BITS, "interpolated": false})
+	out.append({"property": &"net_limbs", "type": "UINT", "bits": LIMB_BITS, "interpolated": false})
 	return out
 
 
@@ -53,6 +56,7 @@ static func pull(npc: DotNpcInstance, body: Node, into: Object) -> void:
 	into.set(&"net_species", maxi(species_index(StringName(body.get(&"species"))), 0))
 	into.set(&"net_action", clampi(action + 1, 0, (1 << ACTION_BITS) - 1))
 	into.set(&"net_variant", clampi(int(body.get(&"variant")), 0, (1 << VARIANT_BITS) - 1))
+	into.set(&"net_limbs", int(body.get(&"limb_mask")) & ((1 << LIMB_BITS) - 1))
 
 
 ## Client: writes replicated state onto a mirror from [method make_mirror].
@@ -62,6 +66,7 @@ static func apply(body: Node3D, from: Object) -> void:
 	DotNpcNetSync.apply(body, from)
 	body.set(&"action", int(from.get(&"net_action")) - 1)
 	body.set(&"variant", int(from.get(&"net_variant")))
+	body.set(&"limb_mask", int(from.get(&"net_limbs")))
 
 
 ## Client: the body for a monster the server announced, or null for an unknown species. It has
@@ -74,7 +79,7 @@ static func make_mirror(index: int, config: Config = null) -> Node3D:
 	var cfg := config if config != null else Config.load_config()
 	var body := (load(BODY_SCENE) as PackedScene).instantiate() as Node3D
 	body.name = "Mirror_%s" % String(species)
-	body.call(&"setup", species, cfg.species(species).get("body", {}))
+	body.call(&"setup", species, cfg.species(species).get("body", {}), cfg.species(species).get("limbs", {}))
 	# A shape on a mirror would shove the local player about on a position the server decided.
 	body.set(&"collision_layer", 0)
 	body.set(&"collision_mask", 0)

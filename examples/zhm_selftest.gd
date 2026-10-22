@@ -16,10 +16,11 @@ const Config := preload("../addons/zz_historical_monsters/core/zhm_config.gd")
 const Catalogue := preload("../addons/zz_historical_monsters/core/zhm_catalogue.gd")
 const Host := preload("../addons/zz_historical_monsters/core/zhm_host.gd")
 const Runtime := preload("../addons/zz_historical_monsters/core/zhm_runtime.gd")
+const Gibs := preload("../addons/zz_historical_monsters/view/zhm_gibs.gd")
 const Provider := preload("../addons/zz_historical_monsters/spawn_provider.gd")
 
-const CHECKS := 74
-const SECTIONS := 8
+const CHECKS := 107
+const SECTIONS := 9
 const TRIS_MAX := 14000
 
 var _passed := 0
@@ -48,6 +49,7 @@ func _run() -> void:
 	await _test_trex()
 	await _test_tiger()
 	await _test_bear()
+	_test_limbs()
 	await _test_provider()
 
 	print("")
@@ -176,6 +178,65 @@ func _test_models() -> void:
 			if not v.has_bone(StringName(bone)):
 				_check(false, "%s has bone %s" % [sp, bone])
 		v.queue_free()
+	_done()
+
+
+func _limb_body(sp: StringName, cfg) -> Node3D:
+	var body := (load("res://addons/zz_historical_monsters/runtime/zhm_body.tscn") as PackedScene).instantiate() as Node3D
+	body.set(&"force_view", true)
+	_world.add_child(body)
+	body.call(&"setup", sp, cfg.species(sp).get("body", {}), cfg.species(sp).get("limbs", {}))
+	return body
+
+
+func _test_limbs() -> void:
+	_section("limbs")
+	var cfg := Config.load_config()
+	for sp in Config.SPECIES:
+		var body := _limb_body(sp, cfg)
+		var limbs: Node = body.get(&"limbs")
+		var names: Array = limbs.call(&"limb_names")
+		_check(names.size() >= 5 and names[0] == &"head", "%s has shootable limbs, the head first" % sp, str(names))
+		_check(limbs.call(&"limb_at", Vector3(0, -50, 0)) == &"", "%s: a point far from the body is no limb" % sp)
+
+		# Every limb is found by a point on its own line and comes off when its health is spent.
+		var found := 0
+		var skeleton: Skeleton3D = body.get(&"view").skeleton
+		for k in names:
+			var d: Dictionary = cfg.species(sp)["limbs"][String(k)]
+			var pts: PackedVector3Array = limbs.call(&"points_of", d)
+			var mid := (pts[0] + pts[pts.size() - 1]) * 0.5
+			if limbs.call(&"limb_at", mid) == k:
+				found += 1
+		_check(found == names.size(), "%s: each limb's own midpoint lands in that limb" % sp, "%d of %d" % [found, names.size()])
+
+		var head_pts: PackedVector3Array = limbs.call(&"points_of", cfg.species(sp)["limbs"]["head"])
+		var head_at := head_pts[0]
+		var hp: float = cfg.species(sp)["limbs"]["head"]["health"]
+		_check(limbs.call(&"hit", head_at, hp * 0.4) == &"", "%s: a shot that does not finish the limb leaves it on" % sp)
+		var cut: StringName = body.call(&"zhm_limb_hit", head_at, hp)
+		_check(cut == &"head" and limbs.call(&"is_severed", &"head"), "%s: the head comes off when its health is spent" % sp)
+		var head_bone := skeleton.find_bone("head")
+		_check(skeleton.get_bone_pose_scale(head_bone).x < 0.01, "%s: the head bone is collapsed on the drawn body" % sp)
+		_check(limbs.call(&"limb_at", head_at) != &"head", "%s: a severed limb is not hit again" % sp)
+		_check(int(body.get(&"limb_mask")) == 1, "%s: the mask has the head's bit" % sp, str(body.get(&"limb_mask")))
+
+		var mirror := _limb_body(sp, cfg)
+		mirror.set(&"limb_mask", int(body.get(&"limb_mask")))
+		_check(mirror.get(&"limbs").call(&"is_severed", &"head"), "%s: a client mirror severs what the mask says" % sp)
+
+		# A leg or a foreleg lost slows it; the gib has real triangles to throw.
+		var slow_before: float = body.call(&"speed_scale")
+		for k in names:
+			if cfg.species(sp)["limbs"][String(k)].has("slow"):
+				limbs.call(&"sever", k, Vector3.INF, Vector3.ZERO)
+		_check(float(body.call(&"speed_scale")) < slow_before, "%s: losing legs slows it" % sp)
+		var view: Node3D = body.get(&"view")
+		var root := skeleton.find_bone(cfg.species(sp)["limbs"][String(names[1])]["bones"][0])
+		var gib: ArrayMesh = Gibs.limb_mesh(skeleton, view.get(&"_model"), root, "test/%s" % sp)
+		_check(gib != null and gib.get_surface_count() > 0, "%s: a limb can be cut from the model as its own mesh" % sp)
+		body.queue_free()
+		mirror.queue_free()
 	_done()
 
 

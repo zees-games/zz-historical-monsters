@@ -36,7 +36,9 @@ func _npc_ready() -> void:
 	super()
 	var body := _body()
 	if body != null and body.has_method(&"setup"):
-		body.call(&"setup", species, cfg.get("body", {}))
+		body.call(&"setup", species, cfg.get("body", {}), cfg.get("limbs", {}))
+		if body.has_signal(&"limb_severed"):
+			body.connect(&"limb_severed", _limb_lost)
 	DotLog.debug(CHANNEL, "monster ready", {"species": String(species), "id": npc.instance_id})
 
 
@@ -222,7 +224,7 @@ func _tick_idle(_c: DotNpcAiContext) -> void:
 
 	# Walk to where the prey was last known rather than stopping dead the instant it is lost.
 	if remembers_target():
-		steer_along_path(last_known_position(), _f(cfg, "walk_speed", 3.0), context.delta)
+		steer_along_path(last_known_position(), _f(cfg, "walk_speed", 3.0) * _scale(&"speed_scale"), context.delta)
 	else:
 		halt()
 	_tick_bleeds()
@@ -238,7 +240,7 @@ func _tick_hunt(_c: DotNpcAiContext) -> void:
 		return
 	var to := target_position(npc.position())
 	var far := _flat(npc.position(), to) > 8.0
-	steer_along_path(to, _f(cfg, "run_speed", 6.0) if far else _f(cfg, "walk_speed", 3.0) * 1.4, context.delta)
+	steer_along_path(to, (_f(cfg, "run_speed", 6.0) if far else _f(cfg, "walk_speed", 3.0) * 1.4) * _scale(&"speed_scale"), context.delta)
 
 
 func _tick_halt_action(_c: DotNpcAiContext, anim: int) -> void:
@@ -476,6 +478,20 @@ func _body() -> Node:
 	return npc.node if npc != null else null
 
 
+func _scale(method: StringName) -> float:
+	var b := _body()
+	return float(b.call(method)) if b != null and b.has_method(method) else 1.0
+
+
+## A limb was shot off. A head takes the monster with it; the director's own damage path does the dying, so
+## the kill is scored like any other.
+func _limb_lost(limb: StringName, info: Dictionary) -> void:
+	var d: Dictionary = info.get("def", {})
+	DotLog.info(CHANNEL, "monster loses a limb", {"species": String(species), "limb": String(limb), "npc": npc.instance_id})
+	if bool(d.get("kills", false)) and npc.is_alive() and director != null and director.has_method(&"damage"):
+		director.call(&"damage", npc.instance_id, npc.health + 1.0, &"decapitation")
+
+
 func _set_action(anim: int) -> void:
 	var b := _body()
 	if b != null:
@@ -546,7 +562,7 @@ func _hit(victim: StringName, amount: float, kind: StringName, impulse: Vector3)
 	if h == null or not h.has_method(&"zhm_hit"):
 		return
 	DotLog.debug(CHANNEL, "monster hits", {"species": String(species), "kind": String(kind), "victim": String(victim), "amount": snappedf(amount, 0.1)})
-	h.call(&"zhm_hit", npc, victim, amount, kind, {"impulse": impulse, "source": npc.position()})
+	h.call(&"zhm_hit", npc, victim, amount * _scale(&"attack_scale"), kind, {"impulse": impulse, "source": npc.position()})
 
 
 func _status(victim: StringName, st: StringName, seconds: float) -> void:

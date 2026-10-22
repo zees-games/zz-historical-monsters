@@ -35,3 +35,45 @@ tiger:
     duration: 6.0
     max_stacks: 3
     tick: 1.0
+  # Shootable limbs, in the order the replicated bit mask uses. `bones[0]` is the joint that comes off
+  # (with everything below it); the region is the line through `bones` plus `tip` metres, `radius` thick.
+  # `health` is damage the limb takes before it comes off (head: `kills` ends the monster); `slow` and
+  # `attack` multiply the monster's speed and damage once it is gone. Delete a limb to make it unshootable.
+  limbs:
+    head:
+      bones: [head, jaw]
+      radius: 0.3
+      tip: 0.3
+      health: 110.0
+      kills: true
+    foreL:
+      bones: [armL_lo, armL_ft]
+      radius: 0.15
+      tip: 0.2
+      health: 70.0
+      slow: 0.8
+      attack: 0.8
+    foreR:
+      bones: [armR_lo, armR_ft]
+      radius: 0.15
+      tip: 0.2
+      health: 70.0
+      slow: 0.8
+      attack: 0.8
+    hindL:
+      bones: [legL_lo, legL_ft]
+      radius: 0.17
+      tip: 0.2
+      health: 80.0
+      slow: 0.6
+    hindR:
+      bones: [legR_lo, legR_ft]
+      radius: 0.17
+      tip: 0.2
+      health: 80.0
+      slow: 0.6
+    tail:
+      bones: [tail2, tail3]
+      radius: 0.12
+      tip: 0.2
+      health: 40.0

@@ -14,6 +14,10 @@ Built on dot-npc and dot-npc-ai; everything logs through `DotLog` on `zhm.*` cha
 
 Every number is in `cfg/addons/zz_historical_monsters/<name>.yml` (every yml in the directory is read; keys are `trex`, `tiger`, `bear`), through dot-core's `DotAddonConfig`. A missing file or key falls back to the built-in defaults in `core/zhm_config.gd`.
 
+## Dismemberment
+
+Heads and limbs can be shot off. Each species lists its `limbs:` in its yml (region = the line through `bones` plus `tip` metres, `radius` thick; `health` is damage the limb takes before it comes off; `kills` on the head ends the monster; `slow` and `attack` multiply speed and damage once a limb is gone). A game's shot code calls, on the server, `body.zhm_limb_hit(world_point, damage, impulse)` beside the damage it does to the monster, and gets back the limb that came off (or `&""`). On the drawn body the limb's root bone collapses, a raw stump with a drip covers the cut, and the limb's own triangles tumble away as a gib with a blood burst. Which limbs are gone replicates as `net_limbs`, one bit per limb in config order. The generic version (hitbox regions on any NPC) is sketched in [docs/limb-hook-design.md](docs/limb-hook-design.md).
+
 ## Hooking it into a game
 
 - Spawn menu: `addons/zz_historical_monsters/spawn_provider.gd` returns `spawn_entries()` (static): `spawn` is `{health, speed, damage, reach, body, boss?}` for Zombie Zone, the play menu Callable is `spawn_fn`.

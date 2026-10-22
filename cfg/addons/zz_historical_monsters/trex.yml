@@ -49,3 +49,43 @@ trex:
     windup: 1.1
     hit_radius: 2.6
     recover: 1.2
+  # Shootable limbs, in the order the replicated bit mask uses. `bones[0]` is the joint that comes off
+  # (with everything below it); the region is the line through `bones` plus `tip` metres, `radius` thick.
+  # `health` is damage the limb takes before it comes off (head: `kills` ends the monster); `slow` and
+  # `attack` multiply the monster's speed and damage once it is gone. Delete a limb to make it unshootable.
+  limbs:
+    head:
+      bones: [head, jaw]
+      radius: 0.75
+      tip: 0.6
+      health: 320.0
+      kills: true
+    armL:
+      bones: [armL]
+      radius: 0.3
+      tip: 0.8
+      health: 100.0
+      attack: 0.9
+    armR:
+      bones: [armR]
+      radius: 0.3
+      tip: 0.8
+      health: 100.0
+      attack: 0.9
+    legL:
+      bones: [legL_lo, legL_ft]
+      radius: 0.5
+      tip: 0.5
+      health: 450.0
+      slow: 0.55
+    legR:
+      bones: [legR_lo, legR_ft]
+      radius: 0.5
+      tip: 0.5
+      health: 450.0
+      slow: 0.55
+    tail:
+      bones: [tail2, tail3]
+      radius: 0.4
+      tip: 0.8
+      health: 220.0

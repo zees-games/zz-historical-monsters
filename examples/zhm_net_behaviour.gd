@@ -20,6 +20,7 @@ var net_state: int = 0
 var net_species: int = 0
 var net_action: int = 0
 var net_variant: int = 0
+var net_limbs: int = 0
 
 
 func _register_net_vars() -> void:

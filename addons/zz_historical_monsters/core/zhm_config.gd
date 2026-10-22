@@ -39,6 +39,14 @@ static func defaults() -> Dictionary:
 			"roar": {"range": 16.0, "stun": 2.5, "cooldown": 16.0, "windup": 1.0, "min_distance": 5.0, "slow": 0.5},
 			"tail_sweep": {"radius": 6.5, "damage": 32.0, "knockback": 10.0, "cooldown": 7.0, "windup": 0.8, "recover": 0.6},
 			"charge": {"min_distance": 10.0, "max_distance": 32.0, "speed": 13.0, "duration": 2.4, "damage": 65.0, "knockback": 14.0, "cooldown": 13.0, "windup": 1.1, "hit_radius": 2.6, "recover": 1.2},
+			"limbs": {
+				"head": {"bones": ["head", "jaw"], "radius": 0.75, "tip": 0.6, "health": 320.0, "kills": true},
+				"armL": {"bones": ["armL"], "radius": 0.3, "tip": 0.8, "health": 100.0, "attack": 0.9},
+				"armR": {"bones": ["armR"], "radius": 0.3, "tip": 0.8, "health": 100.0, "attack": 0.9},
+				"legL": {"bones": ["legL_lo", "legL_ft"], "radius": 0.5, "tip": 0.5, "health": 450.0, "slow": 0.55},
+				"legR": {"bones": ["legR_lo", "legR_ft"], "radius": 0.5, "tip": 0.5, "health": 450.0, "slow": 0.55},
+				"tail": {"bones": ["tail2", "tail3"], "radius": 0.4, "tip": 0.8, "health": 220.0},
+			},
 		},
 		"tiger": {
 			"name": "Infected Tiger",
@@ -54,6 +62,14 @@ static func defaults() -> Dictionary:
 			"claw": {"damage": 14.0, "reach": 2.0, "interval": 0.8, "windup": 0.25},
 			"pounce": {"min_distance": 4.0, "max_distance": 16.0, "speed": 17.0, "damage": 24.0, "cooldown": 6.0, "windup": 0.6, "hit_radius": 1.8, "recover": 0.7, "arc": 2.2},
 			"bleed": {"damage_per_second": 4.0, "duration": 6.0, "max_stacks": 3, "tick": 1.0},
+			"limbs": {
+				"head": {"bones": ["head", "jaw"], "radius": 0.3, "tip": 0.3, "health": 110.0, "kills": true},
+				"foreL": {"bones": ["armL_lo", "armL_ft"], "radius": 0.15, "tip": 0.2, "health": 70.0, "slow": 0.8, "attack": 0.8},
+				"foreR": {"bones": ["armR_lo", "armR_ft"], "radius": 0.15, "tip": 0.2, "health": 70.0, "slow": 0.8, "attack": 0.8},
+				"hindL": {"bones": ["legL_lo", "legL_ft"], "radius": 0.17, "tip": 0.2, "health": 80.0, "slow": 0.6},
+				"hindR": {"bones": ["legR_lo", "legR_ft"], "radius": 0.17, "tip": 0.2, "health": 80.0, "slow": 0.6},
+				"tail": {"bones": ["tail2", "tail3"], "radius": 0.12, "tip": 0.2, "health": 40.0},
+			},
 		},
 		"bear": {
 			"name": "Infected Bear",
@@ -68,6 +84,13 @@ static func defaults() -> Dictionary:
 			"body": {"radius": 0.8, "height": 2.0},
 			"maul": {"damage": 13.0, "reach": 2.6, "interval": 1.4, "windup": 0.3, "hits": 3, "gap": 0.45},
 			"slam": {"radius": 5.5, "damage": 30.0, "stun": 1.2, "knockback": 7.0, "cooldown": 9.0, "windup": 0.95, "recover": 0.8},
+			"limbs": {
+				"head": {"bones": ["head", "jaw"], "radius": 0.4, "tip": 0.3, "health": 220.0, "kills": true},
+				"armL": {"bones": ["armL_lo"], "radius": 0.3, "tip": 0.5, "health": 160.0, "slow": 0.85, "attack": 0.75},
+				"armR": {"bones": ["armR_lo"], "radius": 0.3, "tip": 0.5, "health": 160.0, "slow": 0.85, "attack": 0.75},
+				"legL": {"bones": ["legL_lo"], "radius": 0.3, "tip": 0.5, "health": 180.0, "slow": 0.6},
+				"legR": {"bones": ["legR_lo"], "radius": 0.3, "tip": 0.5, "health": 180.0, "slow": 0.6},
+			},
 		},
 	}
 

@@ -10,6 +10,7 @@ extends Node3D
 ## no --out it just shows the monsters.
 
 const Pose := preload("../addons/zz_historical_monsters/view/zhm_pose.gd")
+const Config := preload("../addons/zz_historical_monsters/core/zhm_config.gd")
 const View := preload("../addons/zz_historical_monsters/view/zhm_view.gd")
 
 var _args := {}
@@ -80,6 +81,11 @@ func _build_stage() -> void:
 	mat.albedo_color = Color(0.22, 0.2, 0.18)
 	floor_mesh.material_override = mat
 	add_child(floor_mesh)
+	var floor_body := StaticBody3D.new()
+	var floor_shape := CollisionShape3D.new()
+	floor_shape.shape = WorldBoundaryShape3D.new()
+	floor_body.add_child(floor_shape)
+	add_child(floor_body)
 
 	_cam = Camera3D.new()
 	_cam.current = true
@@ -116,6 +122,13 @@ func _run_shots() -> void:
 	var species := String(_args.get("species", "trex"))
 	_frame_camera(String(_args.get("cam", "three")))
 	var anims := String(_args.get("anims", "idle")).split(",")
+	if _args.has("sever"):
+		var defs: Dictionary = Config.load_config().species(StringName(species)).get("limbs", {})
+		for k in String(_args["sever"]).split(","):
+			if defs.has(k):
+				_view.sever_limb(StringName(k), defs[k], Vector3(0, 0, -3))
+		# the gib falls and the stump drips in real time
+		await get_tree().create_timer(float(_args.get("wait", 0.7))).timeout
 	var speeds := {"walk": 2.0, "run": 8.0, "stalk": 1.2, "charge": 12.0}
 	for name in anims:
 		var key := String(name).strip_edges().to_upper()
