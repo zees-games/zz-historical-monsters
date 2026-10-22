@@ -7,6 +7,8 @@
 /addons/dot_core
 /addons/dot_npc
 /addons/dot_npc_ai
+# Test only: the two-peer replication suite (examples/zhm_net.gd). The addon never names it.
+/addons/dot_net
 
 # Exports
 build/

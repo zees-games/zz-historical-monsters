@@ -41,10 +41,8 @@ func zhm_targets() -> Array:
 	var out: Array = []
 	if director == null:
 		return out
-	# The spawner keeps what it was last handed in `_candidates`; there is no public accessor, and
-	# asking for one is on the board (dot-npc). Reading it by name is the whole reason this default
-	# is only a default: a real host passes its own list.
-	var list: Variant = director.get(&"_candidates")
+	# dot-npc's public accessor; a real host passes its own list, this is only the default.
+	var list: Variant = director.call(&"candidates") if director.has_method(&"candidates") else null
 	if list is Array:
 		for entry in list:
 			if entry != null and "id" in entry and "position" in entry:

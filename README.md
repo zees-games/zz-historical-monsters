@@ -21,8 +21,12 @@ Every number is in `cfg/addons/zz_historical_monsters/<name>.yml` (every yml in 
 
 ## Credits and licences
 
-See [CREDITS.md](CREDITS.md). Base models are Quaternius (CC0) and Poly by Google (CC-BY 3.0), both from Poly Pizza. Sketchfab's "Free Standard" licence is not a Creative Commons licence, so no Sketchfab model was used; Poly Pizza models under CC0 and CC-BY were substituted.
+See [CREDITS.md](CREDITS.md). Base models are Quaternius (CC0) and Poly by Google (CC-BY 3.0), both from Poly Pizza (T-Rex https://poly.pizza/m/UYtneO5FpF, tiger https://poly.pizza/m/5A3w06FXUup, bear "Black bear" https://poly.pizza/m/56ym_pyVnel). Sketchfab's "Free Standard" licence is not a Creative Commons licence, so no Sketchfab model was used; Poly Pizza models under CC0 and CC-BY were substituted.
 
 ## Checks
 
 `./game.sh test` runs the parse pass and the self-test scene (71 checks). Looks: `tools/screenshot.sh --all` (set `GPU_OFFLOAD=0` to render locally).
+
+## Replication
+
+Monsters are server-authoritative. `ZhmNetSync` (`core/zhm_net_sync.gd`) describes what crosses the wire as data (dot-npc's position, yaw, health and state, plus species, action and variant) and never names dot-net: the host's net behaviour declares one field per `ZhmNetSync.specs()` entry, calls `pull(npc, body, self)` on the server each tick, and on a client builds the body with `make_mirror(net_species)` and calls `apply(body, self)`. `examples/zhm_net_behaviour.gd` is the whole of that wiring, and `examples/zhm_net.tscn` proves it between two peers (it links dot-net, for the suite only).

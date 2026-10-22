@@ -49,7 +49,8 @@ func setup(p_species: StringName, body: Dictionary) -> void:
 		view.name = "View"
 		add_child(view)
 
-	_last_pos = global_position
+	# A client's mirror is set up before it is in the tree, where global_position is an error.
+	_last_pos = global_position if is_inside_tree() else position
 
 
 func _ready() -> void:

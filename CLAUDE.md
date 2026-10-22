@@ -7,4 +7,4 @@ Read the family [CLAUDE.md](../../CLAUDE.md) first. Three infected animals (T-Re
 - Damage leaves through the host seam (`zhm_*`); never import a combat addon.
 - Models are build products: `tools/build_monsters.sh` from `art-src/base/`. Poses are procedural bone rotations (`view/zhm_pose.gd`); the base models are static.
 - A server draws nothing: `ZhmView` does nothing in `_process` headless.
-- Test: `./game.sh --no-parse test zhm_selftest`. Looks: `GPU_OFFLOAD=0 tools/screenshot.sh`.
+- Replication is data in `core/zhm_net_sync.gd`; the pack never names dot-net (only `examples/zhm_net*.gd` does, and links it for the suite). Tests: `./game.sh --no-parse test zhm_selftest` and `zhm_net`. Looks: `GPU_OFFLOAD=0 tools/screenshot.sh`.
