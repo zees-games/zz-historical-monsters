@@ -1,0 +1,31 @@
+# Infected bear: slow to start, brutal at close range.
+bear:
+  name: Infected Bear
+  health: 1100.0
+  walk_speed: 3.4
+  run_speed: 7.5
+  sight_range: 32.0
+  sight_half_angle: 75.0
+  hearing_range: 26.0
+  eye_height: 1.7
+  cost: 6
+  body:
+    radius: 0.8
+    height: 2.0
+  # A combo of `hits` swings, `gap` seconds apart, each hitting what is in front of it.
+  maul:
+    damage: 13.0
+    reach: 2.6
+    interval: 1.4
+    windup: 0.3
+    hits: 3
+    gap: 0.45
+  # A shockwave: everybody within radius, harder the closer they are, and stunned.
+  slam:
+    radius: 5.5
+    damage: 30.0
+    stun: 1.2
+    knockback: 7.0
+    cooldown: 9.0
+    windup: 0.95
+    recover: 0.8

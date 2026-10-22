@@ -1,0 +1,51 @@
+# Infected T-Rex. Every key is optional: delete one and the built-in default applies.
+# Distances are metres, times seconds. A "windup" is the telegraph: the effect lands at its end
+# against whoever is still in range, so a player who moves in time takes nothing.
+# Override one value without editing this file: --zz_historical_monsters.trex.health=3000
+# or the environment ZZ_HISTORICAL_MONSTERS_TREX_HEALTH=3000.
+trex:
+  name: Infected T-Rex
+  health: 2200.0
+  walk_speed: 3.2
+  run_speed: 6.0
+  sight_range: 45.0
+  sight_half_angle: 70.0
+  hearing_range: 30.0
+  eye_height: 4.6
+  cost: 12
+  body:
+    radius: 1.1
+    height: 5.0
+  bite:
+    damage: 45.0
+    reach: 4.2
+    interval: 1.8
+    windup: 0.45
+  # Stuns and slows every player within range. Used across a gap, never point blank.
+  roar:
+    range: 16.0
+    stun: 2.5
+    slow: 0.5
+    cooldown: 16.0
+    windup: 1.0
+    min_distance: 5.0
+  # The answer to being flanked: anybody within radius is hit and thrown.
+  tail_sweep:
+    radius: 6.5
+    damage: 32.0
+    knockback: 10.0
+    cooldown: 7.0
+    windup: 0.8
+    recover: 0.6
+  # Locks a direction after the windup and runs straight; sidestep it. Hits each player once.
+  charge:
+    min_distance: 10.0
+    max_distance: 32.0
+    speed: 13.0
+    duration: 2.4
+    damage: 65.0
+    knockback: 14.0
+    cooldown: 13.0
+    windup: 1.1
+    hit_radius: 2.6
+    recover: 1.2

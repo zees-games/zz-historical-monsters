@@ -1,0 +1,37 @@
+# Infected tiger: fast, light, and it leaves a wound that keeps costing health.
+tiger:
+  name: Infected Tiger
+  health: 520.0
+  walk_speed: 3.6
+  run_speed: 9.5
+  sight_range: 38.0
+  sight_half_angle: 80.0
+  hearing_range: 28.0
+  eye_height: 1.2
+  cost: 4
+  body:
+    radius: 0.55
+    height: 1.7
+  claw:
+    damage: 14.0
+    reach: 2.0
+    interval: 0.8
+    windup: 0.25
+  # Crouches for the windup, then leaps at where the target was; lands on whoever is still there.
+  pounce:
+    min_distance: 4.0
+    max_distance: 16.0
+    speed: 17.0
+    damage: 24.0
+    cooldown: 6.0
+    windup: 0.6
+    hit_radius: 1.8
+    recover: 0.7
+    arc: 2.2
+  # Damage over time. Each pounce (and every third claw) adds a stack, up to max_stacks; it ticks
+  # whether or not the tiger is still alive to chase.
+  bleed:
+    damage_per_second: 4.0
+    duration: 6.0
+    max_stacks: 3
+    tick: 1.0

@@ -1,0 +1,9 @@
+{
+  "id": "zz_historical_monsters",
+  "name": "Zee's Historical Monsters",
+  "games": ["*"],
+  "needs": ["dot_core", "dot_npc", "dot_npc_ai"],
+  "spawn_provider": "addons/zz_historical_monsters/spawn_provider.gd",
+  "config_dir": "cfg/addons/zz_historical_monsters",
+  "npcs": ["zhm_trex", "zhm_tiger", "zhm_bear"]
+}
