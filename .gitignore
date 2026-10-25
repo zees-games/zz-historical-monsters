@@ -5,6 +5,7 @@
 # The dot-* addons are separate repositories and are linked in, never committed.
 # bootstrap.sh derives this project's dependencies from the lines below.
 /addons/dot_core
+/addons/dot_profile
 /addons/dot_npc
 /addons/dot_npc_ai
 # Test only: the two-peer replication suite (examples/zhm_net.gd) and the shot suite (zhm_shoot.gd). The addon never names them.
