@@ -1,0 +1,8 @@
+# size
+# Baselines only shrink: scripts/<gate> --update lowers or drops entries and refuses to add.
+addons/zz_historical_monsters/core/zhm_config.gd::defaults	145
+addons/zz_historical_monsters/view/zhm_pose.gd::_bear	81
+addons/zz_historical_monsters/view/zhm_pose.gd::_cat	87
+addons/zz_historical_monsters/view/zhm_pose.gd::_trex	89
+examples/zhm_net.gd::_test_replication	97
+examples/zhm_shoot.gd::_test_head_shot	91

@@ -1,0 +1,5 @@
+# frame-hazards
+# Baselines only shrink: scripts/<gate> --update lowers or drops entries and refuses to add.
+addons/zz_historical_monsters/core/zhm_runtime.gd::_candidates::alloc_array	2
+addons/zz_historical_monsters/core/zhm_runtime.gd::_candidates::group_lookup	1
+addons/zz_historical_monsters/view/zhm_view.gd::apply::alloc_array	1
