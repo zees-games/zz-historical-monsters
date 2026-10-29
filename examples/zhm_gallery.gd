@@ -1,13 +1,8 @@
 extends Node3D
 
 ## A viewing stage for the monsters, and the render target of tools/screenshot.sh.
-##
-##   godot --path . res://examples/zhm_gallery.tscn -- --species trex --anims idle,walk,bite \
-##       --cam three --out /tmp/shot
-##
-## Each clip is stepped at a fixed 60 fps for --t seconds (default: just past its strike) and the
-## frame saved as <out>_<species>_<anim>.png, so a before and an after are the same picture. With
-## no --out it just shows the monsters.
+## Args: `-- --species trex --anims idle,walk,bite --cam three --out /tmp/shot`; each clip is stepped at a fixed
+## 60 fps for --t seconds and saved as <out>_<species>_<anim>.png. With no --out it just shows the monsters.
 
 const Pose := preload("../addons/zz_historical_monsters/view/zhm_pose.gd")
 const Config := preload("../addons/zz_historical_monsters/core/zhm_config.gd")

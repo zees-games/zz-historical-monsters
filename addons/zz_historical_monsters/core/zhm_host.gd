@@ -1,28 +1,9 @@
 class_name ZhmHost
 extends RefCounted
 
-## What a monster needs from the game it is in, and the stand-in used when there is none.
-##
-## [b]The seam.[/b] A monster knows where players are and what it does to them, and nothing about
-## what a player IS: health, armour, knock-back and being stunned are the game's. A host (Zombie
-## Zone's horde, Playground's world) hands the spawner a node or object carrying these three
-## methods, as meta on the spawner (`spawner.set_meta(&"zhm_host", host)`), and the brain calls
-## them. All three run on the server only.
-##
-## [codeblock]
-## func zhm_targets() -> Array                      # [{id: StringName, position: Vector3}, ...]
-## func zhm_hit(npc: DotNpcInstance, victim: StringName, amount: float, kind: StringName, info: Dictionary) -> void
-## func zhm_status(victim: StringName, status: StringName, seconds: float, info: Dictionary) -> void
-## [/codeblock]
-##
-## [param kind] is one of `bite`, `claw`, `tail`, `charge`, `pounce`, `maul`, `slam`, `bleed`;
-## `info` carries `impulse` (a Vector3 to knock the victim along, when the attack throws) and
-## `source` (the monster's position). `status` is `stun`, `slow` or `bleed`; a host that has no
-## such state may ignore it, and the monster's damage still lands.
-##
-## This default reads the spawner's own candidate list, records every call (so a suite and a
-## demo can see what a monster did) and emits [signal hit] and [signal status] so a host can
-## wire it up in one line each when it has no node of its own to write.
+## What a monster needs from its game, and the stand-in used when there is none. The seam is three server-only
+## methods on a host set as `spawner.set_meta(&"zhm_host", host)`: `zhm_targets() -> Array`,
+## `zhm_hit(npc, victim, amount, kind, info)`, `zhm_status(victim, status, seconds, info)`; the default records calls.
 
 signal hit(npc_id: int, victim: StringName, amount: float, kind: StringName, info: Dictionary)
 signal status(victim: StringName, status: StringName, seconds: float, info: Dictionary)

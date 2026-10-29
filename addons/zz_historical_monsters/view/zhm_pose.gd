@@ -2,10 +2,9 @@ extends RefCounted
 
 const Config := preload("../core/zhm_config.gd")
 
-## What a monster's body does for each thing it can be doing, as bone rotations.
-## A pose maps bone name to Vector3 (pitch, yaw, roll) degrees in the MODEL's axes: +pitch swings a bone's far
-## end up and forward, +yaw left, +roll tips left. `_root` tips the body, `_lift` raises it and `_lunge`
-## shifts it forward, as fractions of height and length. Look at a pose with tools/screenshot.sh.
+## What a monster's body does for each action, as bone rotations: bone name to Vector3 (pitch, yaw, roll) degrees
+## in the MODEL's axes. `_root` tips the body, `_lift` raises it and `_lunge` shifts it, as fractions of size.
+## Look at a pose with tools/screenshot.sh.
 
 ## What a monster looks like it is doing. Replicated by a host as one small integer; a client
 ## chooses a clip by it and nothing on the server reads it back. Appended, never inserted.

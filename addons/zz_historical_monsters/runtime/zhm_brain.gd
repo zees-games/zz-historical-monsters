@@ -1,9 +1,8 @@
 extends "res://addons/dot_npc_ai/runtime/dot_npc_ai_brain.gd"
 
-## The mind of every monster: hunt what the senses committed to, and use the special attacks
-## that suit the range. One script; `meta.species` tells the species apart. Extends the AI brain by path:
-## a mounted pack's globals do not register. Server-authoritative; every attack is a telegraph then a
-## landing against whoever is still in range, and effects leave only through the host's methods.
+## The mind of every monster: hunt what the senses committed to, use the special attack that suits the range.
+## Extends the AI brain by path (a mounted pack's globals do not register). Server-authoritative; effects
+## leave only through the host's methods.
 
 const CHANNEL := "zhm.brain"
 const Pose := preload("../view/zhm_pose.gd")

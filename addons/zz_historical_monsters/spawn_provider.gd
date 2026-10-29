@@ -1,11 +1,8 @@
 extends RefCounted
 
-## Puts the three monsters in a game's spawn menu. Duck-typed and `class_name`-free, as the contract asks
-## (a mounted pack's globals do not register). Each entry's `spawn_fn` runs on the server with
-## `{game, world, player_id, at, kind, cfg_hint, authoritative}` and spawns under a [ZhmRuntime] (created once);
-## until a game sets `runtime.host`, hits are only recorded and signalled.
-## `cfg_hint.count` (1 to 3) is honoured; the T-Rex is capped at one per request because its catalogue `cost`
-## is the game's budget and five at once is a griefing tool.
+## Puts the monsters in a game's spawn menu; `class_name`-free because a mounted pack's globals do not register.
+## `cfg_hint.count` (1 to 3) is honoured; the T-Rex is capped at one per request because its `cost` is the
+## game's budget. Hits are only recorded until a game sets `runtime.host`.
 
 const Config := preload("core/zhm_config.gd")
 const Catalogue := preload("core/zhm_catalogue.gd")

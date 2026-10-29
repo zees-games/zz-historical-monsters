@@ -1,12 +1,9 @@
 class_name ZhmNetSync
 extends RefCounted
 
-## What a client needs to see a monster, as data. The pack's half of replication.
-##
-## dot-net is not named here, as in [DotNpcNetSync]: a host declares one replicated field per entry of
-## [method specs], copies the server's row in with [method pull] each tick, and on a client calls
-## [method apply] on a mirror from [method make_mirror]. Never call [method apply] on a body a local
-## brain drives: replication is server-authoritative.
+## What a client needs to see a monster, as data; dot-net is not named here. A host replicates one field per
+## [method specs] entry, calls [method pull] each server tick and [method apply] on a [method make_mirror] body.
+## Never apply to a body a local brain drives: replication is server-authoritative.
 
 const Pose := preload("../view/zhm_pose.gd")
 const Config := preload("zhm_config.gd")

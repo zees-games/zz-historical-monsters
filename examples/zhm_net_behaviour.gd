@@ -1,10 +1,8 @@
 extends DotNetBehaviour
 
-## The suite's stand-in for a host's net behaviour: the only file here that names dot-net, which
-## is the point, because the pack ships [ZhmNetSync] as data and a host writes this much.
-##
-## On the server it pulls a monster into the replicated fields each tick. On a client it builds
-## the mirror body from the first snapshot (the species is in it) and applies every one after.
+## The suite's stand-in for a host's net behaviour, the only file here that names dot-net: the pack ships
+## [ZhmNetSync] as data and a host writes this much. Server pulls each tick; a client builds the mirror from the
+## first snapshot and applies every later one.
 
 var npc: DotNpcInstance = null
 var body: Node = null

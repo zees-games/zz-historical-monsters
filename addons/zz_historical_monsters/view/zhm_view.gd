@@ -70,10 +70,8 @@ func _default_model() -> String:
 	return here.get_base_dir().get_base_dir().path_join("monsters/%s.glb" % species)
 
 
-## Body shader. The look is baked into two textures per species (tools/bake_monsters.py): albedo, whose alpha is
-## wetness (0 dry hide, 1 fresh flesh and gut), and a tangent-space normal map. Only the wet part is glossy and
-## faintly self-lit, so a wound reads in a dim room. Wetness is a texture channel, not a second material, so a
-## wound fades smoothly at its edge instead of turning every rim into a row of teeth.
+## Body shader: albedo alpha is wetness (0 dry hide, 1 fresh flesh), only the wet part is glossy and faintly self-lit.
+## Wetness is a texture channel, not a second material, so a wound fades at its edge instead of showing a row of teeth.
 const BODY_SHADER := """
 shader_type spatial;
 uniform sampler2D albedo_tex : source_color, filter_linear_mipmap;

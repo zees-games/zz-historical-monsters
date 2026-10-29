@@ -1,12 +1,9 @@
 class_name ZhmConfig
 extends RefCounted
 
-## Every number that tunes a monster, and where it comes from.
-##
-## The yml files are the interface, this file is the fallback: `cfg/addons/zz_historical_monsters/*.yml` is
-## merged over [method defaults] by DotAddonConfig, then environment, then command line. With no yml a monster
-## must still spawn. DotAddonConfig is reached by reflection: naming it would fail to parse against an older
-## dot-core, and a config class that cannot parse is a pack that cannot load.
+## Every number that tunes a monster: yml merged over [method defaults] by DotAddonConfig, then env, then argv.
+## With no yml a monster must still spawn. DotAddonConfig is reached by reflection: naming it fails to parse
+## against an older dot-core, and a config that cannot parse is a pack that cannot load.
 
 const CHANNEL := "zhm.config"
 const ADDON := "zz_historical_monsters"

@@ -1,12 +1,8 @@
 extends Node
 
-## A monster shot by a hitscan: dot-combat resolves the hit on a tagged hitbox to a limb and a world point,
-## its duck-typed `limb_target_fn` hands that to the body's `DotNpcLimbs`, the head comes off and the
-## replicated bitmask carries it to a client mirror. The pack never names dot-combat; only this suite does.
-##
-## [codeblock]
-## ./game.sh --no-parse test zhm_shoot
-## [/codeblock]
+## A monster shot by a hitscan: dot-combat resolves a tagged hitbox to a limb, the duck-typed `limb_target_fn`
+## hands it to `DotNpcLimbs`, the head comes off and the replicated bitmask reaches a client mirror.
+## Run: `./game.sh --no-parse test zhm_shoot`. The pack never names dot-combat; only this suite does.
 
 const Config := preload("../addons/zz_historical_monsters/core/zhm_config.gd")
 const NetSync := preload("../addons/zz_historical_monsters/core/zhm_net_sync.gd")

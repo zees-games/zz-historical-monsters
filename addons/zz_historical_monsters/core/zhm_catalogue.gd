@@ -1,11 +1,8 @@
 class_name ZhmCatalogue
 extends RefCounted
 
-## The monsters as [DotNpcDef]s, built from [ZhmConfig].
-##
-## A host adds them to its own catalogue ([method add_to]) or takes a catalogue of just these
-## ([method build]); either way the definitions name their body scene and brain by PATH, relative
-## to this file, so a mounted pack that rebases `res://` still finds them.
+## The monsters as [DotNpcDef]s, built from [ZhmConfig]: [method add_to] a host catalogue or [method build] one.
+## Definitions name body scene and brain by path relative to this file, so a rebased mounted pack finds them.
 
 const Config := preload("zhm_config.gd")
 

@@ -1,11 +1,7 @@
 extends Node
 
-## Two peers: a server that runs a bear, and a client that has to see it. Proves the monsters'
-## body and `action` cross the wire (they were server-only) through [ZhmNetSync]'s data alone.
-##
-## [codeblock]
-## ./game.sh --no-parse test zhm_net
-## [/codeblock]
+## Two peers: a server running a bear and a client that must see it. Proves the monsters' body and `action`
+## cross the wire through [ZhmNetSync]'s data alone. Run: `./game.sh --no-parse test zhm_net`.
 
 const Behaviour := preload("zhm_net_behaviour.gd")
 const Runtime := preload("../addons/zz_historical_monsters/core/zhm_runtime.gd")

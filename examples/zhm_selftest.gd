@@ -1,14 +1,8 @@
 extends Node
 
-## Proves the monsters load, pose with real bones, read their numbers from yml, and that every
-## special attack does what its definition says to a player standing where it lands.
-##
-## [codeblock]
-## godot --headless --path . res://examples/zhm_selftest.tscn
-## [/codeblock]
-##
-## What it cannot prove is how any of it looks: that is `tools/screenshot.sh`, and somebody
-## looking at the result.
+## Proves the monsters load, pose with real bones, read their numbers from yml, and that every special attack
+## does what its definition says. Run: `godot --headless --path . res://examples/zhm_selftest.tscn`.
+## How it looks is `tools/screenshot.sh` and somebody looking.
 
 const Pose := preload("../addons/zz_historical_monsters/view/zhm_pose.gd")
 const View := preload("../addons/zz_historical_monsters/view/zhm_view.gd")
@@ -204,7 +198,7 @@ func _test_limbs() -> void:
 		_check(names.size() >= 5 and names[0] == &"head", "%s has shootable limbs, the head first" % sp, str(names))
 		_check(limbs.call(&"limb_at", Vector3(0, -50, 0)) == &"", "%s: a point far from the body is no limb" % sp)
 
-		# Every limb is found by a point on its own line and comes off when its health is spent.
+		# Every limb has its own hit point and comes off when its health is spent.
 		var found := 0
 		var skeleton: Skeleton3D = body.get(&"view").skeleton
 		for k in names:
