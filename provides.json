@@ -1,9 +1,82 @@
 {
-  "id": "zz_historical_monsters",
-  "name": "Zee's Historical Monsters",
-  "games": ["*"],
-  "needs": ["dot_core", "dot_npc", "dot_npc_ai"],
-  "spawn_provider": "addons/zz_historical_monsters/spawn_provider.gd",
-  "config_dir": "cfg/addons/zz_historical_monsters",
-  "npcs": ["zhm_trex", "zhm_tiger", "zhm_bear"]
+    "schema": 1,
+    "title": "Zee's Historical Monsters",
+    "kinds": [
+        "npc"
+    ],
+    "games": "*",
+    "entries": [
+        {
+            "kind": "npc",
+            "id": "zhm_allosaurus",
+            "name": "Allosaurus",
+            "scene": "addons/zz_historical_monsters/monsters/allosaurus.glb",
+            "tags": [
+                "monster"
+            ],
+            "meta": {
+                "spawn_provider": "addons/zz_historical_monsters/spawn_provider.gd"
+            }
+        },
+        {
+            "kind": "npc",
+            "id": "zhm_bear",
+            "name": "Cave Bear",
+            "scene": "addons/zz_historical_monsters/monsters/bear.glb",
+            "tags": [
+                "monster"
+            ],
+            "meta": {
+                "spawn_provider": "addons/zz_historical_monsters/spawn_provider.gd"
+            }
+        },
+        {
+            "kind": "npc",
+            "id": "zhm_raptor",
+            "name": "Raptor",
+            "scene": "addons/zz_historical_monsters/monsters/raptor.glb",
+            "tags": [
+                "monster"
+            ],
+            "meta": {
+                "spawn_provider": "addons/zz_historical_monsters/spawn_provider.gd"
+            }
+        },
+        {
+            "kind": "npc",
+            "id": "zhm_thylacine",
+            "name": "Thylacine",
+            "scene": "addons/zz_historical_monsters/monsters/thylacine.glb",
+            "tags": [
+                "monster"
+            ],
+            "meta": {
+                "spawn_provider": "addons/zz_historical_monsters/spawn_provider.gd"
+            }
+        },
+        {
+            "kind": "npc",
+            "id": "zhm_tiger",
+            "name": "Tiger",
+            "scene": "addons/zz_historical_monsters/monsters/tiger.glb",
+            "tags": [
+                "monster"
+            ],
+            "meta": {
+                "spawn_provider": "addons/zz_historical_monsters/spawn_provider.gd"
+            }
+        },
+        {
+            "kind": "npc",
+            "id": "zhm_trex",
+            "name": "Tyrannosaurus",
+            "scene": "addons/zz_historical_monsters/monsters/trex.glb",
+            "tags": [
+                "monster"
+            ],
+            "meta": {
+                "spawn_provider": "addons/zz_historical_monsters/spawn_provider.gd"
+            }
+        }
+    ]
 }

@@ -1,0 +1,77 @@
+[
+    {
+        "paths": [
+            ""
+        ],
+        "licence": "MIT",
+        "author": "TMC",
+        "url": "https://github.com/zees-games/zz-historical-monsters",
+        "title": "zz-historical-monsters (original content)"
+    },
+    {
+        "paths": [
+            "addons/zz_historical_monsters/monsters/trex.glb",
+            "addons/zz_historical_monsters/monsters/textures/trex_albedo.png",
+            "addons/zz_historical_monsters/monsters/textures/trex_normal.png"
+        ],
+        "licence": "CC0-1.0",
+        "author": "Quaternius",
+        "url": "https://poly.pizza/m/UYtneO5FpF",
+        "title": "Tyrannosaurus (modified)"
+    },
+    {
+        "paths": [
+            "addons/zz_historical_monsters/monsters/tiger.glb",
+            "addons/zz_historical_monsters/monsters/textures/tiger_albedo.png",
+            "addons/zz_historical_monsters/monsters/textures/tiger_normal.png"
+        ],
+        "licence": "CC-BY-3.0",
+        "author": "Poly by Google",
+        "url": "https://poly.pizza/m/5A3w06FXUup",
+        "title": "Tiger (modified)"
+    },
+    {
+        "paths": [
+            "addons/zz_historical_monsters/monsters/bear.glb",
+            "addons/zz_historical_monsters/monsters/textures/bear_albedo.png",
+            "addons/zz_historical_monsters/monsters/textures/bear_normal.png"
+        ],
+        "licence": "CC-BY-3.0",
+        "author": "Poly by Google",
+        "url": "https://poly.pizza/m/56ym_pyVnel",
+        "title": "Cave Bear (modified)"
+    },
+    {
+        "paths": [
+            "addons/zz_historical_monsters/monsters/raptor.glb",
+            "addons/zz_historical_monsters/monsters/textures/raptor_albedo.png",
+            "addons/zz_historical_monsters/monsters/textures/raptor_normal.png"
+        ],
+        "licence": "CC-BY-4.0",
+        "author": "seth the yutyrannus",
+        "url": "https://sketchfab.com/3d-models/velociraptor-reuploaded-and-retextured-def52bae17f749b0b911a695fdb05218",
+        "title": "Raptor (modified)"
+    },
+    {
+        "paths": [
+            "addons/zz_historical_monsters/monsters/allosaurus.glb",
+            "addons/zz_historical_monsters/monsters/textures/allosaurus_albedo.png",
+            "addons/zz_historical_monsters/monsters/textures/allosaurus_normal.png"
+        ],
+        "licence": "CC-BY-4.0",
+        "author": "seth the yutyrannus",
+        "url": "https://sketchfab.com/3d-models/allosaurus-02e651e39fed47bbaec0aa0546f17fd3",
+        "title": "Allosaurus (modified)"
+    },
+    {
+        "paths": [
+            "addons/zz_historical_monsters/monsters/thylacine.glb",
+            "addons/zz_historical_monsters/monsters/textures/thylacine_albedo.png",
+            "addons/zz_historical_monsters/monsters/textures/thylacine_normal.png"
+        ],
+        "licence": "CC-BY-4.0",
+        "author": "victory_mirosya",
+        "url": "https://sketchfab.com/3d-models/wolf-c5c2c9b77df94d758e732237a7d98af0",
+        "title": "Thylacine (modified)"
+    }
+]
