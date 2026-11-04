@@ -28,11 +28,11 @@ Heads and limbs can be shot off. Each species lists its `limbs:` in its yml (reg
 
 ## Credits and licences
 
-See [CREDITS.md](CREDITS.md). Base models are Quaternius (CC0) and Poly by Google (CC-BY 3.0), both from Poly Pizza (T-Rex https://poly.pizza/m/UYtneO5FpF, tiger https://poly.pizza/m/5A3w06FXUup, bear "Black bear" https://poly.pizza/m/56ym_pyVnel). Sketchfab's "Free Standard" licence is not a Creative Commons licence, so no Sketchfab model was used; Poly Pizza models under CC0 and CC-BY were substituted.
+See [CREDITS.md](CREDITS.md). Base models: Quaternius (CC0) and Poly by Google (CC-BY 3.0) from Poly Pizza (T-Rex https://poly.pizza/m/UYtneO5FpF, tiger https://poly.pizza/m/5A3w06FXUup, bear "Black bear" https://poly.pizza/m/56ym_pyVnel), and seth the yutyrannus (raptor, allosaurus) and victory_mirosya (thylacine), CC-BY 4.0, from Sketchfab (URLs in CREDITS.md). Sketchfab "Free Standard" models are not used: they are not a Creative Commons licence. Every shipped model is a modified build product, and textures are baked PNGs beside the `.glb`, so the art survives pack delivery.
 
 ## Checks
 
-`./game.sh test` runs the parse pass and the self-test scene (71 checks). Looks: `tools/screenshot.sh --all` (set `GPU_OFFLOAD=0` to render locally).
+`./game.sh test` runs the parse pass and the suites `zhm_selftest`, `zhm_net` and `zhm_shoot`. Looks: `tools/screenshot.sh --all` (set `GPU_OFFLOAD=0` to render locally).
 
 ## Replication
 

@@ -45,7 +45,7 @@ func _run() -> void:
 
 	print("")
 	print("%d passed, %d failed" % [_passed, _failed])
-	print("%d of %d sections ran to their last line" % [_completed, _entered])
+	print("%d sections entered, %d finished" % [_entered, _completed])
 	if _entered != SECTIONS - 1 or _completed != _entered:
 		print("ERROR: %d sections entered and %d completed." % [_entered, _completed])
 		get_tree().quit(1)
