@@ -205,9 +205,9 @@ CONFIG = {
             ("armR_lo", "armR_up", (0.73, 0.35, 0.55), (0.74, 0.10, 0.55)),
             ("armR_ft", "armR_lo", (0.74, 0.10, 0.55), (0.80, 0.0, 0.55)),
         ],
-        "skin_dark": 0.62,
-        "skin_tint": (0.55, 0.38, 0.22), "skin_tint_amount": 0.35,
-        "skin_cap": 0.52,
+        "skin_dark": 0.95,
+        "skin_tint": (0.80, 0.38, 0.10), "skin_tint_amount": 0.62, "desat": 0.15, "rot": 0.35,
+        "skin_cap": 0.8,
         "wounds": [
             (0.45, 0.62, 1.0, 0.55, 0.12, "ribs"),
             (0.70, 0.66, -1.0, 0.45, 0.10, "flesh"),
@@ -549,7 +549,7 @@ for i, v in enumerate(verts):
     # Torn rim: a lip raised a little, then the sunken wound with a ragged floor.
     core = smooth(0.18, 0.5, m)
     rim = smooth(0.0, 0.18, m) * (1.0 - core)
-    depth = 1.7 * s["depth"] * core * rag_all[i] - 0.15 * s["depth"] * rim
+    depth = 3.0 * s["depth"] * core * rag_all[i] - 0.15 * s["depth"] * rim
     v.co += v.normal * (-depth)
 
 # Relax the torn ground a little: the refined grid leaves long sliver triangles that the noise
@@ -649,7 +649,7 @@ def add_ribbon(points, w0, w1, side, outer, inner):
     both faces, so the curl is in the mesh and the fibre and the soft rim are in the texture."""
     n = len(points)
     twist = RNG.uniform(-1.1, 1.1)
-    half = 0.0055 * LEN
+    half = 0.012 * LEN
     cup = RNG.uniform(0.3, 0.55)
     wob = [RNG.uniform(0.8, 1.2) for _ in range(n)]
     out, inn = [], []
@@ -842,7 +842,7 @@ for si, st in enumerate(sites):
         if side.length < 1e-4:
             side = t2
         side.normalize()
-        add_ribbon(path, st["r"] * RNG.uniform(0.1, 0.18), st["r"] * 0.015, side,
+        add_ribbon(path, st["r"] * RNG.uniform(0.16, 0.26), st["r"] * 0.03, side,
                    srgb((0.36, 0.36, 0.24)), srgb((0.52, 0.07, 0.07)))
 # the lower jaw's cheek hangs in tatters
 for k in range(4):
@@ -851,7 +851,7 @@ for k in range(4):
     base = snap_to_surface(P(fl, J["fh_max"] - 0.02, sgn * 0.5))
     L = HEIGHT * RNG.uniform(0.07, 0.12)
     path = [base + Vector((sgn * L * 0.06 * math.sin(t * 3.0), 0.02 * LEN * t, -L * 1.2 * t)) for t in (0.0, 1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6, 1.0)]
-    add_ribbon(path, L * 0.17, L * 0.02, Vector((0, 1, 0)), srgb((0.45, 0.38, 0.28)), srgb((0.52, 0.07, 0.07)))
+    add_ribbon(path, L * 0.3, L * 0.05, Vector((0, 1, 0)), srgb((0.45, 0.38, 0.28)), srgb((0.52, 0.07, 0.07)))
 
 KIND = K_TUMOUR
 # tumours: swollen, veined growths

@@ -204,14 +204,15 @@ def bake_body(idx):
     P, base = Pt[idx], sample_base(UVo[idx], Mt[idx])
     n = len(P)
     grey = base.mean(1, keepdims=True)
-    c1 = base * 0.55 + grey * 0.45
+    dz = CFG.get("desat", 0.45)
+    c1 = base * (1 - dz) + grey * dz
     c1 = c1 * CFG["skin_dark"]
     c1 = mixa(c1, lin(CFG["skin_tint"]), np.full(n, CFG["skin_tint_amount"]))
     # sick skin: drained, then a pallid rotten tone, mottled with rot, bruise, pus and dry cracks
     blot = fbm(P, 2.6 / SC, 3, 9.1)
-    c1 = mixa(c1, lin((0.30, 0.38, 0.16)), smooth(0.05, 0.4, blot) * 0.7)
+    c1 = mixa(c1, lin((0.30, 0.38, 0.16)), smooth(0.05, 0.4, blot) * 0.7 * CFG.get("rot", 1.0))
     bruise = fbm(P, 5.0 / SC, 3, 3.3)
-    c1 = mixa(c1, lin((0.38, 0.14, 0.32)), smooth(0.2, 0.5, bruise) * 0.6)
+    c1 = mixa(c1, lin((0.38, 0.14, 0.32)), smooth(0.2, 0.5, bruise) * 0.6 * CFG.get("rot", 1.0))
     pus = fbm(P, 12.0 / SC, 3, 7.7)
     pusm = smooth(0.45, 0.6, pus)
     c1 = mixa(c1, lin((0.72, 0.66, 0.30)), pusm * 0.85)
@@ -255,6 +256,8 @@ def bake_body(idx):
     clot = smooth(0.05, 0.3, fbm(P, 13.0 / SC, 3, 8.8)) * smooth(0.3, 0.7, m)
     muscle = mixa(muscle, lin((0.20, 0.012, 0.018)), clot * 0.65)
     floor_c = mixa(muscle, lin(DEEP), inner * 0.6)
+    # a cavity is dark at the bottom: ambient light does not reach it
+    floor_c = floor_c * (1.0 - 0.75 * smooth(0.35, 1.1, m))[:, None]
     wet_k = np.ones(n)
     bone_w = smooth(0.25, 0.55, m) * 0.95
     bone_c = lin(BONE_COL)[None, :] * (0.8 + 0.2 * fibre)[:, None]
@@ -277,7 +280,7 @@ def bake_body(idx):
     w = smooth(0.1, 0.4, m) * wet_k * (1.0 - 0.45 * clot)
     # relief: fibres ridge the muscle, clots and fat swell, the dead lip is a raised welt
     h_wound = (fibre - 0.5) * 1.8 + clot * 0.9 + fat * 0.4 * fbm(P, 60.0 / SC, 2, 8.1) + 0.3 * fbm(P, 40.0 / SC, 2, 2.2)
-    h = h_skin * (1.0 - core) + h_wound * core + 0.8 * lip
+    h = h_skin * (1.0 - core) + h_wound * core + 1.6 * lip - 1.2 * smooth(0.1, 0.4, m) * (1.0 - smooth(0.4, 0.8, m))
 
     # blood: drips running down from every wound, and a darkening round it
     near = np.full(n, 1e9)
