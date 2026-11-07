@@ -80,17 +80,35 @@ uniform float rough_dry = 0.9;
 uniform float rough_wet = 0.06;
 uniform float wet_glow = 0.3;
 uniform float normal_depth = 1.6;
+uniform float body_height = 4.0;
+uniform float desaturate = 0.7;
+uniform float sss_rim = 1.6;
+varying float MODEL_H;
+void vertex() { MODEL_H = VERTEX.y / max(0.001, body_height); }
 void fragment() {
 	vec4 t = texture(albedo_tex, UV);
 	float wet = clamp(t.a, 0.0, 1.0);
-	ALBEDO = t.rgb;
+	// Dry hide: pull toward a sickly grey-green so it reads as dead skin beside the red wounds.
+	float lum = dot(t.rgb, vec3(0.299, 0.587, 0.114));
+	vec3 dead = mix(t.rgb, vec3(lum) * vec3(0.92, 1.0, 0.82), desaturate * (1.0 - wet));
+	// Cavity darkening from the normal map: tangent-space tilt means a crease or wound lip.
+	vec3 nm = texture(normal_tex, UV).rgb;
+	float crease = clamp(length(nm.xy - 0.5) * 2.0, 0.0, 1.0);
+	dead *= 1.0 - 0.55 * crease * (1.0 - wet);
+	// Bruised, grimy underside: dry hide darkens and goes purple-grey toward the ground (model space height).
+	float low = 1.0 - smoothstep(0.0, 0.55, MODEL_H);
+	dead = mix(dead, dead * vec3(0.55, 0.45, 0.55), low * (1.0 - wet));
+	dead *= 0.88;
+	ALBEDO = dead;
 	ROUGHNESS = mix(rough_dry, rough_wet, wet);
 	SPECULAR = mix(0.2, 0.9, wet);
 	CLEARCOAT = wet;
 	CLEARCOAT_ROUGHNESS = 0.05;
-	NORMAL_MAP = texture(normal_tex, UV).rgb;
+	NORMAL_MAP = nm;
 	NORMAL_MAP_DEPTH = normal_depth;
-	EMISSION = t.rgb * t.rgb * wet_glow * wet;
+	// Subsurface-ish: raw flesh glows red at grazing angles, dry hide stays dull.
+	float fres = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 2.5);
+	EMISSION = t.rgb * t.rgb * wet_glow * wet + vec3(0.55, 0.04, 0.03) * fres * wet * sss_rim;
 }
 """
 static var _body_shader: Shader
@@ -125,6 +143,10 @@ func _use_textures(n: Node, model_file: String) -> void:
 					sm.shader = _body_shader
 					sm.set_shader_parameter("albedo_tex", albedo)
 					sm.set_shader_parameter("normal_tex", normal)
+					sm.set_shader_parameter("body_height", maxf(0.5, _body_height))
+					# Furred animals keep their markings (tiger orange, bear brown); the scaled ones go grey-green.
+					var furred := species in ["tiger", "bear", "thylacine"]
+					sm.set_shader_parameter("desaturate", 0.28 if furred else 0.7)
 					mi.set_surface_override_material(s, sm)
 
 
