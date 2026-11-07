@@ -45,7 +45,7 @@ shoot() {  # species cam anims t prefix
     local xpid=$!
     sleep 1.5
     DISPLAY=":$disp" LIBGL_ALWAYS_SOFTWARE=1 timeout 180 godot --path . --resolution 1280x720 \
-        --rendering-driver opengl3 res://examples/zhm_gallery.tscn -- \
+        --rendering-method gl_compatibility --rendering-driver opengl3 res://examples/zhm_gallery.tscn -- \
         --species "$1" --cam "$2" --anims "$3" --t "$4" --variant "$VARIANT" --sever "$SEVER" --out "$5" 2>&1 \
         | grep -i "error\|wrote" 
     kill "$xpid" 2>/dev/null
