@@ -4,7 +4,7 @@ Reasoning moved out of code comments so the scripts stay short. Each entry names
 
 ## Telegraph, then landing (runtime/zhm_brain.gd)
 
-Every attack winds up for `windup` seconds while the animation shows it coming, and the effect is applied at the end against whoever is still in range then. A player who moves in time takes nothing, which makes a roar, a tail sweep and a pounce things to react to rather than things that happen to you. The pounce and the charge move the monster: they lock a direction when they start, so they can be sidestepped as well. Effects reach the game only through the host's three methods, so Zombie Zone, Playground and a game with neither differ only in the host. The brain is server-authoritative like every NPC: a client sees `body.action` replicate and draws a clip, and never decides a hit.
+Every attack winds up for `windup` seconds while the animation shows it coming, and the effect is applied at the end against whoever is still in range then. A player who moves in time takes nothing, which makes a roar, a tail sweep and a pounce things to react to rather than things that happen to you. The pounce and the charge move the monster: they lock a direction when they start, so they can be sidestepped as well. Effects reach the game only through the host's three methods, so Zombie Zone, Playlot and a game with neither differ only in the host. The brain is server-authoritative like every NPC: a client sees `body.action` replicate and draws a clip, and never decides a hit.
 
 ## Replication (core/zhm_net_sync.gd)
 
