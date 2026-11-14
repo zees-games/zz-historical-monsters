@@ -1,5 +1,3 @@
-# zz-historical-monsters
-
 Six infected, mutated animals that chase and kill players: a T-Rex, an allosaurus, a raptor, a tiger, a thylacine and a bear. Every limb, the head included, can be shot off. Made for Zombie Zone and usable in any game through Dot (`games: ["*"]`). The addon is `addons/zz_historical_monsters`. It is built on dot-npc and dot-npc-ai.
 
 | Monster | Specials (server-side, each warned before it lands) |
