@@ -4,7 +4,7 @@ config_version=5
 [application]
 
 config/name="zz-historical-monsters"
-config/description="Zee's Historical Monsters: infected, mutated versions of realistic animals (T-Rex, tiger, bear) that hunt and kill players, each with special attacks. An addon for Zombie Zone and any other Dot game."
+config/description="Zee's Historical Monsters: infected, mutated versions of realistic animals (T-Rex, tiger, bear) that hunt and kill players, each with special attacks. An addon for Zombie Zone and any other Gamespice game."
 run/main_scene="res://examples/zhm_gallery.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
