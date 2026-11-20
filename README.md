@@ -1,3 +1,5 @@
+![Historical Monsters banner](https://raw.githubusercontent.com/zees-games/zz-historical-monsters/main/docs/banner.png)
+
 Six infected, mutated animals that hunt players down: a T-Rex, an allosaurus, a raptor, a tiger, a thylacine and a bear. Each has its own specials, every limb (the head included) can be shot off, and every number is a yml setting. Made for Zombie Zone and usable in any [**GameSpice**](https://gamespice.net) game (`games: ["*"]`). The addon is `addons/zz_historical_monsters`, built on dot-npc and dot-npc-ai.
 
 ### In GameSpice and Zombie Zone
