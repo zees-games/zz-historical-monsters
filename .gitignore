@@ -26,3 +26,4 @@ Thumbs.db
 .vscode/
 __pycache__/
 art-src/reference/
+/tools/readme_studio/

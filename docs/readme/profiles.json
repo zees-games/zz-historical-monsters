@@ -1,0 +1,374 @@
+{
+ "ids": [
+  "trex",
+  "allosaurus",
+  "raptor",
+  "tiger",
+  "thylacine",
+  "bear"
+ ],
+ "items": {
+  "allosaurus": {
+   "name": "Infected Allosaurus",
+   "npc_id": "zhm_allosaurus",
+   "poses": [
+    "idle",
+    "bite"
+   ],
+   "rows": [
+    [
+     "Health",
+     "1100"
+    ],
+    [
+     "Speed",
+     "3.4 m/s walking, 8 m/s running"
+    ],
+    [
+     "Bite",
+     "34 damage, 3.4 m reach, every 1.5 s (0.4 s windup)"
+    ],
+    [
+     "Roar",
+     "stuns 2 s and slows to 60 % within 14 m; 18 s cooldown (0.9 s windup)"
+    ],
+    [
+     "Tail sweep",
+     "24 damage within 5 m, knockback 8; 7 s cooldown (0.7 s windup)"
+    ],
+    [
+     "Charge",
+     "48 damage, knockback 11, at 12 m/s from 8 to 28 m; 11 s cooldown (0.9 s windup)"
+    ],
+    [
+     "Sight",
+     "42 m, 140 deg cone"
+    ],
+    [
+     "Hearing",
+     "30 m"
+    ],
+    [
+     "Weight class",
+     "Heavy"
+    ],
+    [
+     "Spawn cost",
+     "8"
+    ],
+    [
+     "Body",
+     "3.4 m tall, 0.85 m radius"
+    ],
+    [
+     "Shootable limbs",
+     "head 240 (kills), armL 80, armR 80, legL 340, legR 340, tail 170"
+    ]
+   ],
+   "summary": {
+    "Damage": "34 bite",
+    "Health": "1100",
+    "Weight": "Heavy"
+   }
+  },
+  "bear": {
+   "name": "Infected Bear",
+   "npc_id": "zhm_bear",
+   "poses": [
+    "idle",
+    "maul"
+   ],
+   "rows": [
+    [
+     "Health",
+     "1100"
+    ],
+    [
+     "Speed",
+     "3.4 m/s walking, 7.5 m/s running"
+    ],
+    [
+     "Maul",
+     "3 hits of 13 damage, 0.45 s apart, 2.6 m reach, every 1.4 s (0.3 s windup)"
+    ],
+    [
+     "Slam",
+     "30 damage within 5.5 m, stuns 1.2 s, knockback 7; 9 s cooldown (0.95 s windup)"
+    ],
+    [
+     "Sight",
+     "32 m, 150 deg cone"
+    ],
+    [
+     "Hearing",
+     "26 m"
+    ],
+    [
+     "Weight class",
+     "Heavy"
+    ],
+    [
+     "Spawn cost",
+     "6"
+    ],
+    [
+     "Body",
+     "2 m tall, 0.8 m radius"
+    ],
+    [
+     "Shootable limbs",
+     "head 220 (kills), armL 160, armR 160, legL 180, legR 180"
+    ]
+   ],
+   "summary": {
+    "Damage": "3 x 13 maul",
+    "Health": "1100",
+    "Weight": "Heavy"
+   }
+  },
+  "raptor": {
+   "name": "Infected Raptor",
+   "npc_id": "zhm_raptor",
+   "poses": [
+    "idle",
+    "bite"
+   ],
+   "rows": [
+    [
+     "Health",
+     "380"
+    ],
+    [
+     "Speed",
+     "3.8 m/s walking, 10 m/s running"
+    ],
+    [
+     "Bite",
+     "16 damage, 2 m reach, every 0.9 s (0.25 s windup)"
+    ],
+    [
+     "Roar",
+     "stuns 1 s and slows to 70 % within 10 m; 20 s cooldown (0.7 s windup)"
+    ],
+    [
+     "Tail sweep",
+     "10 damage within 2.6 m, knockback 5; 6 s cooldown (0.5 s windup)"
+    ],
+    [
+     "Charge",
+     "24 damage, knockback 6, at 15 m/s from 6 to 22 m; 7 s cooldown (0.6 s windup)"
+    ],
+    [
+     "Sight",
+     "40 m, 150 deg cone"
+    ],
+    [
+     "Hearing",
+     "30 m"
+    ],
+    [
+     "Weight class",
+     "Normal"
+    ],
+    [
+     "Spawn cost",
+     "4"
+    ],
+    [
+     "Body",
+     "1.9 m tall, 0.5 m radius"
+    ],
+    [
+     "Shootable limbs",
+     "head 110 (kills), armL 50, armR 50, legL 130, legR 130, tail 70"
+    ]
+   ],
+   "summary": {
+    "Damage": "16 bite",
+    "Health": "380",
+    "Weight": "Normal"
+   }
+  },
+  "thylacine": {
+   "name": "Infected Thylacine",
+   "npc_id": "zhm_thylacine",
+   "poses": [
+    "idle",
+    "bite"
+   ],
+   "rows": [
+    [
+     "Health",
+     "330"
+    ],
+    [
+     "Speed",
+     "3.4 m/s walking, 9 m/s running"
+    ],
+    [
+     "Claw",
+     "11 damage, 1.8 m reach, every 0.8 s (0.25 s windup)"
+    ],
+    [
+     "Bleed",
+     "3 damage per second for 6 s, stacks up to 3"
+    ],
+    [
+     "Pounce",
+     "18 damage, leaps from 3.5 to 14 m at 15 m/s; 6 s cooldown (0.6 s windup)"
+    ],
+    [
+     "Sight",
+     "36 m, 160 deg cone"
+    ],
+    [
+     "Hearing",
+     "30 m"
+    ],
+    [
+     "Weight class",
+     "Normal"
+    ],
+    [
+     "Spawn cost",
+     "3"
+    ],
+    [
+     "Body",
+     "1.3 m tall, 0.45 m radius"
+    ],
+    [
+     "Shootable limbs",
+     "head 90 (kills), foreL 60, foreR 60, hindL 70, hindR 70, tail 35"
+    ]
+   ],
+   "summary": {
+    "Damage": "11 claw",
+    "Health": "330",
+    "Weight": "Normal"
+   }
+  },
+  "tiger": {
+   "name": "Infected Tiger",
+   "npc_id": "zhm_tiger",
+   "poses": [
+    "idle",
+    "pounce_wind"
+   ],
+   "rows": [
+    [
+     "Health",
+     "520"
+    ],
+    [
+     "Speed",
+     "3.6 m/s walking, 9.5 m/s running"
+    ],
+    [
+     "Claw",
+     "14 damage, 2 m reach, every 0.8 s (0.25 s windup)"
+    ],
+    [
+     "Bleed",
+     "4 damage per second for 6 s, stacks up to 3"
+    ],
+    [
+     "Pounce",
+     "24 damage, leaps from 4 to 16 m at 17 m/s; 6 s cooldown (0.6 s windup)"
+    ],
+    [
+     "Sight",
+     "38 m, 160 deg cone"
+    ],
+    [
+     "Hearing",
+     "28 m"
+    ],
+    [
+     "Weight class",
+     "Normal"
+    ],
+    [
+     "Spawn cost",
+     "4"
+    ],
+    [
+     "Body",
+     "1.7 m tall, 0.55 m radius"
+    ],
+    [
+     "Shootable limbs",
+     "head 110 (kills), foreL 70, foreR 70, hindL 80, hindR 80, tail 40"
+    ]
+   ],
+   "summary": {
+    "Damage": "14 claw",
+    "Health": "520",
+    "Weight": "Normal"
+   }
+  },
+  "trex": {
+   "name": "Infected T-Rex",
+   "npc_id": "zhm_trex",
+   "poses": [
+    "idle",
+    "bite"
+   ],
+   "rows": [
+    [
+     "Health",
+     "2200"
+    ],
+    [
+     "Speed",
+     "3.2 m/s walking, 6 m/s running"
+    ],
+    [
+     "Bite",
+     "45 damage, 4.2 m reach, every 1.8 s (0.45 s windup)"
+    ],
+    [
+     "Roar",
+     "stuns 2.5 s and slows to 50 % within 16 m; 16 s cooldown (1 s windup)"
+    ],
+    [
+     "Tail sweep",
+     "32 damage within 6.5 m, knockback 10; 7 s cooldown (0.8 s windup)"
+    ],
+    [
+     "Charge",
+     "65 damage, knockback 14, at 13 m/s from 10 to 32 m; 13 s cooldown (1.1 s windup)"
+    ],
+    [
+     "Sight",
+     "45 m, 140 deg cone"
+    ],
+    [
+     "Hearing",
+     "30 m"
+    ],
+    [
+     "Weight class",
+     "Boss"
+    ],
+    [
+     "Spawn cost",
+     "12"
+    ],
+    [
+     "Body",
+     "5 m tall, 1.1 m radius"
+    ],
+    [
+     "Shootable limbs",
+     "head 320 (kills), armL 100, armR 100, legL 450, legR 450, tail 220"
+    ]
+   ],
+   "summary": {
+    "Damage": "45 bite",
+    "Health": "2200",
+    "Weight": "Boss"
+   }
+  }
+ }
+}

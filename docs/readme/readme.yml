@@ -1,0 +1,46 @@
+# Words for the README's generated gallery (tools/gen_readme.sh). Numbers never go here: they come from the pack's
+# config through tools/readme_adapter.gd into docs/readme/profiles.json.
+heading: The monsters
+noun: Monster
+columns: [Role, Health, Damage, Weight]
+order: [trex, allosaurus, raptor, tiger, thylacine, bear]
+summary_before: "## Using it"
+items_before: "## Settings"
+items:
+  trex:
+    role: Boss
+    blurb: >-
+      The set piece. Slow to turn but huge, it roars to stun and slow everyone in range, sweeps its tail at
+      anyone who gets close, and locks a line for a charge that hits once and then leaves it staggered. Its
+      jaw and short arms can be shot off; the head kills it.
+    poses: {bite: "Bite: the heaviest single hit in the pack"}
+  allosaurus:
+    role: Heavy brawler
+    blurb: >-
+      The T-Rex's kit on a slower, heavier frame: bite, roar, tail sweep and charge. Good as a mini-boss or a
+      second big threat in a horde.
+    poses: {bite: "Bite: the jaws drive forward and snap shut"}
+  raptor:
+    role: Fast hunter
+    blurb: >-
+      Light and quick, with the same specials as the big theropods. Raptors close distance fast and punish
+      players who stand in the open.
+    poses: {bite: "Bite: fast, low and from the flank"}
+  tiger:
+    role: Ambusher
+    blurb: >-
+      Stalks low, then pounces: the leap locks on a spot and lands on whoever is still there. Its claws leave a
+      bleed that stacks and keeps ticking after the fight.
+    poses: {pounce_wind: "Pounce windup: crouched and locked on"}
+  thylacine:
+    role: Skirmisher
+    blurb: >-
+      A smaller, faster cousin of the tiger with the same pounce and stacking bleed. Cheap to spawn, so it
+      comes in numbers.
+    poses: {bite: "Bite"}
+  bear:
+    role: Heavy bruiser
+    blurb: >-
+      Rears up, then mauls with a three-swing combo, or slams the ground to stun and knock back everyone
+      nearby (weaker with distance). Slow, tough and hard to stagger.
+    poses: {maul: "Maul: a raking swipe at close range"}
