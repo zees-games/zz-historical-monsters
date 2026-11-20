@@ -4,7 +4,7 @@ Six infected, mutated animals that hunt players down: a T-Rex, an allosaurus, a 
 
 ### In GameSpice and Zombie Zone
 
-- GameSpice:** the pack is published to the Workshop as `zz-historical-monsters`. Add it to a server's or game's pack list and the six monsters appear in the spawn menu (NPC ids `zhm_trex`, `zhm_allosaurus`, `zhm_raptor`, `zhm_tiger`, `zhm_thylacine`, `zhm_bear`); players get it with the server's pack overlay, so there is nothing to install.
+- **GameSpice**: the pack is published to the Workshop as `zz-historical-monsters`. Add it to a server's or game's pack list and the six monsters appear in the spawn menu (NPC ids `zhm_trex`, `zhm_allosaurus`, `zhm_raptor`, `zhm_tiger`, `zhm_thylacine`, `zhm_bear`); players get it with the server's pack overlay, so there is nothing to install.
 - **Zombie Zone:** link the pack into `addons/`. The game's pack scan (`game/zz_packs.gd`) finds `spawn_provider.gd` and adds each monster to the wave catalogue, with its brain seated by `game/zz_pack_brains.gd`; tune Zombie Zone's side in `cfg/addon/zombie_zone/*.yml`.
 - **Playlot:** Playlot automatically places the pack's monsters into its spawn menu (`game/playlot_addons.gd` reads `spawn_provider.gd`), so you can test them there, or use the [Workbench](https://github.com/gamespice-platform/workbench) tool. Set the host meta `zhm_host` (see [Using it](#using-it)) to have their hits land on players.
 - **Your own Godot game:** link `addons/zz_historical_monsters` beside gs-npc and gs-npc-ai and follow [Using it](#using-it).
