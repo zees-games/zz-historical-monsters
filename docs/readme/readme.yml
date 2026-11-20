@@ -44,3 +44,5 @@ items:
       Rears up, then mauls with a three-swing combo, or slams the ground to stun and knock back everyone
       nearby (weaker with distance). Slow, tough and hard to stagger.
     poses: {maul: "Maul: a raking swipe at close range"}
+banner_style: raw
+banner_name: Historical Monsters
