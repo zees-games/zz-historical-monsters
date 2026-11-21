@@ -1,11 +1,11 @@
 # zz-historical-monsters
 
-Read the family [CLAUDE.md](../../CLAUDE.md) first. Six infected animals (T-Rex, allosaurus, raptor, tiger, thylacine, bear; the extra ones reuse an archetype through `Config.ARCHETYPE`) on dot-npc and dot-npc-ai. See README.md for what they do.
+Read the family [CLAUDE.md](../../CLAUDE.md) first. Six infected animals (T-Rex, allosaurus, raptor, tiger, thylacine, bear; the extra ones reuse an archetype through `Config.ARCHETYPE`) on gs-npc and gs-npc-ai. See README.md for what they do.
 
 - No `class_name` in pack-loaded scripts (`runtime/`, `view/`, `spawn_provider.gd`): they extend and preload by path. `core/` has class names.
 - Every attack is a telegraph then a landing against whoever is still in range; charge and pounce lock direction. All numbers live in the yml and `core/zhm_config.gd`.
 - Damage leaves through the host seam (`zhm_*`); never import a combat addon.
 - Models are build products: `tools/build_monsters.sh` from `art-src/base/`. Poses are procedural bone rotations (`view/zhm_pose.gd`); the base models are static.
 - A server draws nothing: `ZhmView` does nothing in `_process` headless.
-- Replication is data in `core/zhm_net_sync.gd`; the pack never names dot-net (only `examples/zhm_net*.gd` does, and links it for the suite). Tests: `./game.sh --no-parse test zhm_selftest` and `zhm_net`. Looks: `GPU_OFFLOAD=0 tools/screenshot.sh`.
-- Limbs: dot-npc's `GSNpcLimbs` (state, regions) and `GSNpcGibs` (look); this pack only supplies the yml and the model; numbers are `limbs:` in the yml. The body's `zhm_limb_hit` is the seam a game's shots call. Look at one with `tools/screenshot.sh trex --sever head,legL`. `zhm_shoot` shoots one through dot-combat (`GSHitbox.limb` tag, `limb_target_fn` to the body's `GSNpcLimbs`; test-only link `addons/dot_combat`).
+- Replication is data in `core/zhm_net_sync.gd`; the pack never names gs-net (only `examples/zhm_net*.gd` does, and links it for the suite). Tests: `./game.sh --no-parse test zhm_selftest` and `zhm_net`. Looks: `GPU_OFFLOAD=0 tools/screenshot.sh`.
+- Limbs: gs-npc's `GSNpcLimbs` (state, regions) and `GSNpcGibs` (look); this pack only supplies the yml and the model; numbers are `limbs:` in the yml. The body's `zhm_limb_hit` is the seam a game's shots call. Look at one with `tools/screenshot.sh trex --sever head,legL`. `zhm_shoot` shoots one through gs-combat (`GSHitbox.limb` tag, `limb_target_fn` to the body's `GSNpcLimbs`; test-only link `addons/gs_combat`).

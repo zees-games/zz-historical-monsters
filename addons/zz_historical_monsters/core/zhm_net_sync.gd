@@ -1,7 +1,7 @@
 class_name ZhmNetSync
 extends RefCounted
 
-## What a client needs to see a monster, as data; dot-net is not named here. A host replicates one field per
+## What a client needs to see a monster, as data; gs-net is not named here. A host replicates one field per
 ## [method specs] entry, calls [method pull] each server tick and [method apply] on a [method make_mirror] body.
 ## Never apply to a body a local brain drives: replication is server-authoritative.
 
@@ -18,7 +18,7 @@ const LIMB_BITS := 8
 const BODY_SCENE := "res://addons/zz_historical_monsters/runtime/zhm_body.tscn"
 
 
-## One entry per replicated property, in dot-npc's shape: `{property, type, bits, interpolated}`.
+## One entry per replicated property, in gs-npc's shape: `{property, type, bits, interpolated}`.
 static func specs() -> Array[Dictionary]:
 	var out: Array[Dictionary] = GSNpcNetSync.specs()
 	out.append({"property": &"net_species", "type": "UINT", "bits": SPECIES_BITS, "interpolated": false})

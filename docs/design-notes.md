@@ -8,7 +8,7 @@ Every attack winds up for `windup` seconds while the animation shows it coming, 
 
 ## Replication (core/zhm_net_sync.gd)
 
-Before `ZhmNetSync`, monsters existed only on the server: a connected player was mauled by something nobody drew, and `body.action` (which picks the clip) never left the machine that decided it. The fields are dot-npc's own (position, yaw, health, state) plus the species to build, and what the body is doing. See dot-npc's runtime doc for why replication is never predicted.
+Before `ZhmNetSync`, monsters existed only on the server: a connected player was mauled by something nobody drew, and `body.action` (which picks the clip) never left the machine that decided it. The fields are gs-npc's own (position, yaw, health, state) plus the species to build, and what the body is doing. See gs-npc's runtime doc for why replication is never predicted.
 
 ## Why the headless server draws nothing (view/zhm_view.gd, runtime/zhm_body.gd)
 
@@ -24,12 +24,12 @@ Wetness is the alpha of the baked albedo texture (0 dry hide, 1 fresh flesh and 
 
 ## Config by reflection (core/zhm_config.gd)
 
-`GSAddonConfig` landed in dot-core after this pack's first consumers pinned it. Naming it would make the file fail to parse against theirs, and a config class that cannot parse is a pack that cannot load at all, so the script is loaded by path and `load_dir` is called on it. A windup being the telegraph is the whole of fair melee, and is why every ability's range is rechecked when it lands.
+`GSAddonConfig` landed in gs-core after this pack's first consumers pinned it. Naming it would make the file fail to parse against theirs, and a config class that cannot parse is a pack that cannot load at all, so the script is loaded by path and `load_dir` is called on it. A windup being the telegraph is the whole of fair melee, and is why every ability's range is rechecked when it lands.
 
 ## Spawn provider (spawn_provider.gd)
 
 Zombie Zone's `ZzPacks` draws a monster as one of its own zombie bodies, so the client needs no scene of ours: the big two as the brute, the cat as the leaper. The play menu's Callable moved to `spawn_fn` because the pack scan's `spawn` key could not be both.
 
-## Limbs (dot-npc: GSNpcLimbs, GSNpcGibs)
+## Limbs (gs-npc: GSNpcLimbs, GSNpcGibs)
 
 Regions are lines through bone origins rather than physics shapes, so a server with no model gets the same answer from the cached rest pose that a client gets from its live skeleton (a posed limb moves by up to its radius, which the radius already allows). A limb is hidden by collapsing its root bone to a near-zero scale, which carries every bone below it; the gib is cut out of the mesh by vertex weight instead of being a scaled-away copy, because scaled-away bones leave stretched slivers across the cut. The severed set is one byte on the wire, so a late joiner sees the same body.

@@ -3,7 +3,7 @@ extends RefCounted
 
 ## Every number that tunes a monster: yml merged over [method defaults] by GSAddonConfig, then env, then argv.
 ## With no yml a monster must still spawn. GSAddonConfig is reached by reflection: naming it fails to parse
-## against an older dot-core, and a config that cannot parse is a pack that cannot load.
+## against an older gs-core, and a config that cannot parse is a pack that cannot load.
 
 const CHANNEL := "zhm.config"
 const ADDON := "zz_historical_monsters"
@@ -14,7 +14,7 @@ const ARCHETYPE := {&"allosaurus": &"trex", &"raptor": &"trex", &"thylacine": &"
 
 static func archetype(species: StringName) -> StringName:
 	return ARCHETYPE.get(species, species)
-const ADDON_CONFIG_PATH := "res://addons/dot_core/core/dot_addon_config.gd"
+const ADDON_CONFIG_PATH := "res://addons/gs_core/core/gs_addon_config.gd"
 
 ## The merged tree: `{trex: {...}, tiger: {...}, bear: {...}}`.
 var data: Dictionary = {}
@@ -175,7 +175,7 @@ static func load_config() -> ZhmConfig:
 	out.data = defaults()
 
 	if not ResourceLoader.exists(ADDON_CONFIG_PATH):
-		GSLog.info(CHANNEL, "no GSAddonConfig in this dot-core, using built-in defaults", {})
+		GSLog.info(CHANNEL, "no GSAddonConfig in this gs-core, using built-in defaults", {})
 		return out
 
 	var script: Variant = load(ADDON_CONFIG_PATH)

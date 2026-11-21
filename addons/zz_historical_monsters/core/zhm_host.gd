@@ -22,7 +22,7 @@ func zhm_targets() -> Array:
 	var out: Array = []
 	if director == null:
 		return out
-	# dot-npc's public accessor; a real host passes its own list, this is only the default.
+	# gs-npc's public accessor; a real host passes its own list, this is only the default.
 	var list: Variant = director.call(&"candidates") if director.has_method(&"candidates") else null
 	if list is Array:
 		for entry in list:

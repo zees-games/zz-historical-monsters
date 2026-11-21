@@ -1,6 +1,6 @@
 extends GSNetBehaviour
 
-## The suite's stand-in for a host's net behaviour, the only file here that names dot-net: the pack ships
+## The suite's stand-in for a host's net behaviour, the only file here that names gs-net: the pack ships
 ## [ZhmNetSync] as data and a host writes this much. Server pulls each tick; a client builds the mirror from the
 ## first snapshot and applies every later one.
 

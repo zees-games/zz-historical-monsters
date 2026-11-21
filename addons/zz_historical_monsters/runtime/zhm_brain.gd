@@ -1,4 +1,4 @@
-extends "res://addons/dot_npc_ai/runtime/dot_npc_ai_brain.gd"
+extends "res://addons/gs_npc_ai/runtime/gs_npc_ai_brain.gd"
 
 ## The mind of every monster: hunt what the senses committed to, use the special attack that suits the range.
 ## Extends the AI brain by path (a mounted pack's globals do not register). Server-authoritative; effects

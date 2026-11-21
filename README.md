@@ -1,13 +1,13 @@
 ![Historical Monsters banner](https://raw.githubusercontent.com/zees-games/zz-historical-monsters/main/docs/banner.png)
 
-Six infected, mutated animals that hunt players down: a T-Rex, an allosaurus, a raptor, a tiger, a thylacine and a bear. Each has its own specials, every limb (the head included) can be shot off, and every number is a yml setting. Made for Zombie Zone and usable in any [**GameSpice**](https://gamespice.net) game (`games: ["*"]`). The addon is `addons/zz_historical_monsters`, built on dot-npc and dot-npc-ai.
+Six infected, mutated animals that hunt players down: a T-Rex, an allosaurus, a raptor, a tiger, a thylacine and a bear. Each has its own specials, every limb (the head included) can be shot off, and every number is a yml setting. Made for Zombie Zone and usable in any [**GameSpice**](https://gamespice.net) game (`games: ["*"]`). The addon is `addons/zz_historical_monsters`, built on gs-npc and gs-npc-ai.
 
 ### In GameSpice and Zombie Zone
 
 - GameSpice:** the pack is published to the Workshop as `zz-historical-monsters`. Add it to a server's or game's pack list and the six monsters appear in the spawn menu (NPC ids `zhm_trex`, `zhm_allosaurus`, `zhm_raptor`, `zhm_tiger`, `zhm_thylacine`, `zhm_bear`); players get it with the server's pack overlay, so there is nothing to install.
 - **Zombie Zone:** link the pack into `addons/`. The game's pack scan (`game/zz_packs.gd`) finds `spawn_provider.gd` and adds each monster to the wave catalogue, with its brain seated by `game/zz_pack_brains.gd`; tune Zombie Zone's side in `cfg/addon/zombie_zone/*.yml`.
 - **Playlot:** Playlot automatically places the pack's monsters into its spawn menu (`game/playlot_addons.gd` reads `spawn_provider.gd`), so you can test them there, or use the [Workbench](https://github.com/gamespice-platform/workbench) tool. Set the host meta `zhm_host` (see [Using it](#using-it)) to have their hits land on players.
-- **Your own Godot game:** link `addons/zz_historical_monsters` beside dot-npc and dot-npc-ai and follow [Using it](#using-it).
+- **Your own Godot game:** link `addons/zz_historical_monsters` beside gs-npc and gs-npc-ai and follow [Using it](#using-it).
 
 | Monster | Specials (server-side, each warned before it lands) |
 | --- | --- |
@@ -200,11 +200,11 @@ Each species lists its `limbs:` in its yml:
 | `kills` | On the head: losing it ends the monster |
 | `slow`, `attack` | Multipliers on speed and damage once the limb is gone |
 
-A game's shot code calls `body.zhm_limb_hit(world_point, damage, impulse)` on the server, beside the damage it does to the monster. It returns the limb that came off, or `&""`. The limb's stump collapses, the cut drips, and the limb tumbles away as a gib with a blood burst. Which limbs are gone replicates as `net_limbs`, one bit per limb in config order. The machinery is dot-npc's `GSNpcLimbs` and `GSNpcGibs`; see [docs/limb-hook-design.md](docs/limb-hook-design.md).
+A game's shot code calls `body.zhm_limb_hit(world_point, damage, impulse)` on the server, beside the damage it does to the monster. It returns the limb that came off, or `&""`. The limb's stump collapses, the cut drips, and the limb tumbles away as a gib with a blood burst. Which limbs are gone replicates as `net_limbs`, one bit per limb in config order. The machinery is gs-npc's `GSNpcLimbs` and `GSNpcGibs`; see [docs/limb-hook-design.md](docs/limb-hook-design.md).
 
 ## Networking
 
-Monsters are decided by the server. `ZhmNetSync` (`core/zhm_net_sync.gd`) lists what goes over the wire as plain data and never names dot-net. The host's net behaviour declares one field per `ZhmNetSync.specs()` entry, calls `pull(npc, body, self)` on the server each tick, and on a client builds the body with `make_mirror(net_species)` and calls `apply(body, self)`. `examples/zhm_net_behaviour.gd` is the whole wiring.
+Monsters are decided by the server. `ZhmNetSync` (`core/zhm_net_sync.gd`) lists what goes over the wire as plain data and never names gs-net. The host's net behaviour declares one field per `ZhmNetSync.specs()` entry, calls `pull(npc, body, self)` on the server each tick, and on a client builds the body with `make_mirror(net_species)` and calls `apply(body, self)`. `examples/zhm_net_behaviour.gd` is the whole wiring.
 
 ## Testing
 

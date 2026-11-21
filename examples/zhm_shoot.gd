@@ -1,8 +1,8 @@
 extends Node
 
-## A monster shot by a hitscan: dot-combat resolves a tagged hitbox to a limb, the duck-typed `limb_target_fn`
+## A monster shot by a hitscan: gs-combat resolves a tagged hitbox to a limb, the duck-typed `limb_target_fn`
 ## hands it to `GSNpcLimbs`, the head comes off and the replicated bitmask reaches a client mirror.
-## Run: `./game.sh --no-parse test zhm_shoot`. The pack never names dot-combat; only this suite does.
+## Run: `./game.sh --no-parse test zhm_shoot`. The pack never names gs-combat; only this suite does.
 
 const Config := preload("../addons/zz_historical_monsters/core/zhm_config.gd")
 const NetSync := preload("../addons/zz_historical_monsters/core/zhm_net_sync.gd")

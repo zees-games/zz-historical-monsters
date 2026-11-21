@@ -1,6 +1,6 @@
 extends RefCounted
 
-## The README studio's view of this pack (dot-bootstrap tools/readme/, run by tools/gen_readme.sh): which monsters,
+## The README studio's view of this pack (gs-bootstrap tools/readme/, run by tools/gen_readme.sh): which monsters,
 ## their models and poses, and the default-profile rows the README prints. Every number is read from the pack's
 ## effective config (ZhmConfig: the built-in defaults merged with cfg/addons/zz_historical_monsters/*.yml) and the
 ## catalogue's NPC definition, never typed here.
