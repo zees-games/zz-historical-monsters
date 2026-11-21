@@ -18,13 +18,13 @@ var _entered := 0
 var _completed := 0
 var _server_world: Node3D = null
 var _client_world: Node3D = null
-var _server: DotNetManager = null
-var _client: DotNetManager = null
+var _server: GSNetManager = null
+var _client: GSNetManager = null
 var _wire: Array[PackedByteArray] = []
 
 
 func _ready() -> void:
-	DotLog.set_level(DotLog.Level.ERROR)
+	GSLog.set_level(GSLog.Level.ERROR)
 	_run.call_deferred()
 
 
@@ -57,15 +57,15 @@ func _run() -> void:
 	get_tree().quit(1 if _failed > 0 else 0)
 
 
-func _manager(is_server: bool) -> DotNetManager:
-	var net := DotNetManager.new()
+func _manager(is_server: bool) -> GSNetManager:
+	var net := GSNetManager.new()
 	net.name = "Server" if is_server else "Client"
 	net.is_server = is_server
 	net.service_scope = &"zhm_server" if is_server else &"zhm_client"
 	net.local_peer_id = 1 if is_server else 2
 	net.auto_tick = false
 	net.config_file = ""
-	net.config = DotNetConfig.new()
+	net.config = GSNetConfig.new()
 	net.config.tick_rate = TICK_RATE
 	net.config.snapshot_rate = 30
 	add_child(net)
@@ -75,18 +75,18 @@ func _manager(is_server: bool) -> DotNetManager:
 func _build(_context: Dictionary) -> Node:
 	var root := Node3D.new()
 	root.name = "Entity"
-	var identity := DotNetIdentity.new()
+	var identity := GSNetIdentity.new()
 	identity.name = "NetIdentity"
 	identity.prefab_id = &"zhm_monster"
-	identity.authority = DotNetIdentity.Authority.SERVER
+	identity.authority = GSNetIdentity.Authority.SERVER
 	root.add_child(identity)
-	var behaviour: DotNetBehaviour = Behaviour.new()
+	var behaviour: GSNetBehaviour = Behaviour.new()
 	behaviour.name = "Behaviour"
 	root.add_child(behaviour)
 	identity.entity = root
 	identity.behaviours = [behaviour]
 	behaviour.identity = identity
-	behaviour._bind(DotNetConfig.new())
+	behaviour._bind(GSNetConfig.new())
 	return root
 
 
@@ -113,7 +113,7 @@ func _test_replication() -> void:
 	runtime.candidates_source = func() -> Array: return [{"id": &"p0", "position": prey, "loudness": 100.0}]
 	runtime.self_ticking = false
 	await get_tree().physics_frame
-	var npc: DotNpcInstance = runtime.call(&"spawn", &"bear", Vector3.ZERO)
+	var npc: GSNpcInstance = runtime.call(&"spawn", &"bear", Vector3.ZERO)
 	await get_tree().physics_frame
 	_check(npc != null and npc.node != null, "the server spawns a bear")
 
@@ -121,7 +121,7 @@ func _test_replication() -> void:
 	_client = _manager(false)
 	var ok_setup := _server.setup().ok and _client.setup().ok
 	_server.send_fn = func(peer_id: int, payload: PackedByteArray, d: int) -> void:
-		if peer_id == 2 and d == DotNetMessage.Delivery.UNRELIABLE:
+		if peer_id == 2 and d == GSNetMessage.Delivery.UNRELIABLE:
 			_wire.append(payload)
 	_server.start()
 	_client.start()
@@ -131,12 +131,12 @@ func _test_replication() -> void:
 	_check(ok_setup, "both peers set up")
 
 	var made := _server.spawner.spawn(&"zhm_monster", 0, Transform3D.IDENTITY, 0)
-	var s_id: DotNetIdentity = made.value if made.ok else null
+	var s_id: GSNetIdentity = made.value if made.ok else null
 	var s_beh: Node = s_id.behaviours[0] if s_id != null else null
 	s_beh.npc = npc
 	s_beh.body = npc.node
 	var c_made := _client.spawner.spawn_remote(&"zhm_monster", s_id.net_id, 0, Transform3D.IDENTITY, 0)
-	var c_id: DotNetIdentity = c_made.value if c_made.ok else null
+	var c_id: GSNetIdentity = c_made.value if c_made.ok else null
 	var c_beh: Node = c_id.behaviours[0] if c_id != null else null
 	c_beh.world = _client_world
 	_check(s_id != null and c_id != null and not c_id.is_authoritative, "the client holds a non-authoritative mirror entity")

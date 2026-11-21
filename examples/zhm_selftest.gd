@@ -25,7 +25,7 @@ var _world: Node3D = null
 
 
 func _ready() -> void:
-	DotLog.set_level(DotLog.Level.ERROR)
+	GSLog.set_level(GSLog.Level.ERROR)
 	_run.call_deferred()
 
 
@@ -126,14 +126,14 @@ func _test_catalogue() -> void:
 		_check(def != null and def.validate().ok, "%s validates" % sp)
 		_check(def != null and ResourceLoader.exists(def.scene_path) and ResourceLoader.exists(def.brain_script_path), "%s names a scene and a brain that exist" % sp)
 		_check(def != null and def.meta.get("species") == String(sp) and def.meta.get("cfg") is Dictionary, "%s carries its species and numbers in meta" % sp)
-		var rest := DotNpcLimbs.rest_points("res://addons/zz_historical_monsters/monsters/%s.glb" % sp)
+		var rest := GSNpcLimbs.rest_points("res://addons/zz_historical_monsters/monsters/%s.glb" % sp)
 		var bones_ok := not rest.is_empty()
 		for limb in Config.load_config().species(sp).get("limbs", {}).values():
 			for b in limb["bones"]:
 				bones_ok = bones_ok and rest.has(StringName(b))
 		_check(bones_ok, "%s has a model, and every limb names a bone it has" % sp)
 	_check(Catalogue.species_of(&"zhm_bear") == &"bear" and Catalogue.species_of(&"nope") == &"", "ids map back to species")
-	var spawner_cat := DotNpcCatalogue.new()
+	var spawner_cat := GSNpcCatalogue.new()
 	_check(Catalogue.add_to(spawner_cat) == Config.SPECIES.size() and spawner_cat.size() == Config.SPECIES.size(), "add_to puts every species in a host's own catalogue")
 	_done()
 
@@ -232,7 +232,7 @@ func _test_limbs() -> void:
 		_check(float(body.call(&"speed_scale")) < slow_before, "%s: losing legs slows it" % sp)
 		var view: Node3D = body.get(&"view")
 		var root := skeleton.find_bone(cfg.species(sp)["limbs"][String(names[1])]["bones"][0])
-		var gib: ArrayMesh = DotNpcGibs.limb_mesh(skeleton, view.get(&"_model"), root, "test/%s" % sp)
+		var gib: ArrayMesh = GSNpcGibs.limb_mesh(skeleton, view.get(&"_model"), root, "test/%s" % sp)
 		_check(gib != null and gib.get_surface_count() > 0, "%s: a limb can be cut from the model as its own mesh" % sp)
 
 		# A late joiner shows what is already gone as a stump: collapsed, with a finite point.
@@ -250,8 +250,8 @@ func _test_limbs() -> void:
 		# The gib is the whole limb even after the body's mesh was trimmed by severs.
 		var fresh := _limb_body(sp, cfg)
 		var fresh_view: Node3D = fresh.get(&"view")
-		var fresh_gib: ArrayMesh = DotNpcGibs.limb_mesh(fresh_view.skeleton, fresh_view.get(&"_model"), root, "pre/%s" % sp)
-		var sev_gib: ArrayMesh = DotNpcGibs.limb_mesh(skeleton, view.get(&"_model"), root, "post/%s" % sp)
+		var fresh_gib: ArrayMesh = GSNpcGibs.limb_mesh(fresh_view.skeleton, fresh_view.get(&"_model"), root, "pre/%s" % sp)
+		var sev_gib: ArrayMesh = GSNpcGibs.limb_mesh(skeleton, view.get(&"_model"), root, "post/%s" % sp)
 		_check(fresh_gib != null and sev_gib != null and fresh_gib.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size() == sev_gib.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size(), "%s: a gib cut after severs is built from the untrimmed mesh" % sp)
 
 		# A recycled body comes back whole: bones, mesh and mask.
@@ -320,7 +320,7 @@ func _arena(tweak: Callable = Callable()) -> Dictionary:
 	var cfg := Config.load_config()
 	if tweak.is_valid():
 		tweak.call(cfg.data)
-	var spawner := DotNpcSpawner.new()
+	var spawner := GSNpcSpawner.new()
 	spawner.authoritative = true
 	spawner.catalogue = Catalogue.build(cfg)
 	_world.add_child(spawner)
@@ -329,16 +329,16 @@ func _arena(tweak: Callable = Callable()) -> Dictionary:
 	return {"spawner": spawner, "host": host}
 
 
-func _prey(spawner: DotNpcSpawner, at: Array) -> void:
+func _prey(spawner: GSNpcSpawner, at: Array) -> void:
 	var list: Array = []
 	var i := 0
 	for p in at:
-		list.append(DotNpcSenses.Candidate.new(StringName("p%d" % i), p, &"player", 100.0))
+		list.append(GSNpcSenses.Candidate.new(StringName("p%d" % i), p, &"player", 100.0))
 		i += 1
 	spawner.set_candidates(list)
 
 
-func _sim(spawner: DotNpcSpawner, seconds: float) -> void:
+func _sim(spawner: GSNpcSpawner, seconds: float) -> void:
 	for i in int(seconds * 60.0):
 		spawner.tick(1.0 / 60.0)
 		await get_tree().physics_frame
@@ -352,7 +352,7 @@ func _statuses(host: Object, st: StringName) -> Array:
 	return host.history.filter(func(h): return h["op"] == "status" and h["status"] == st)
 
 
-func _spawn(spawner: DotNpcSpawner, species: StringName) -> DotNpcInstance:
+func _spawn(spawner: GSNpcSpawner, species: StringName) -> GSNpcInstance:
 	var npc := spawner.spawn(Catalogue.id_of(species), Vector3.ZERO)
 	await get_tree().physics_frame
 	return npc
@@ -369,7 +369,7 @@ func _quick(d: Dictionary) -> void:
 func _test_trex() -> void:
 	_section("trex")
 	var a := _arena(func(d): _quick(d); d["trex"]["tail_sweep"]["radius"] = 1.0; d["trex"]["roar"]["min_distance"] = 100.0)
-	var sp: DotNpcSpawner = a.spawner
+	var sp: GSNpcSpawner = a.spawner
 	var host: Object = a.host
 	var rex := await _spawn(sp, &"trex")
 	_check(rex != null and rex.brain != null and rex.node.get(&"species") == &"trex", "a T-Rex spawns with its brain and body")
@@ -434,7 +434,7 @@ func _test_trex() -> void:
 func _test_tiger() -> void:
 	_section("tiger")
 	var a := _arena(func(d): _quick(d))
-	var sp: DotNpcSpawner = a.spawner
+	var sp: GSNpcSpawner = a.spawner
 	var host: Object = a.host
 	var cat := await _spawn(sp, &"tiger")
 	_prey(sp, [Vector3(0, 0, -9)])
@@ -474,7 +474,7 @@ func _test_tiger() -> void:
 func _test_bear() -> void:
 	_section("bear")
 	var a := _arena(func(d): _quick(d); d["bear"]["slam"]["radius"] = 1.0)
-	var sp: DotNpcSpawner = a.spawner
+	var sp: GSNpcSpawner = a.spawner
 	var host: Object = a.host
 	var bear := await _spawn(sp, &"bear")
 	_prey(sp, [Vector3(0, 0, -2.2)])
@@ -554,13 +554,13 @@ func _test_provider() -> void:
 	_world.add_child(world)
 	var entry: Dictionary = entries[1]
 	var refused: Variant = (entry["spawn_fn"] as Callable).call({"world": world, "at": Vector3(0, 0, 0), "player_id": &"u", "authoritative": false, "cfg_hint": {}})
-	_check(refused is DotResult and not refused.ok, "a client is refused")
+	_check(refused is GSResult and not refused.ok, "a client is refused")
 	var made: Variant = (entry["spawn_fn"] as Callable).call({"world": world, "at": Vector3(0, 0, 0), "player_id": &"u", "authoritative": true, "cfg_hint": {"count": 2}})
 	await get_tree().physics_frame
 	var rt := Runtime.find_or_create(world)
-	_check(made is DotResult and made.ok and rt.spawner.world_count() == 2, "the server spawns the asked count", str(rt.spawner.world_count()))
+	_check(made is GSResult and made.ok and rt.spawner.world_count() == 2, "the server spawns the asked count", str(rt.spawner.world_count()))
 	_check(Runtime.find_or_create(world) == rt, "a second request finds the same runtime")
 	var rex: Variant = (entries[0]["spawn_fn"] as Callable).call({"world": world, "at": Vector3(8, 0, 0), "player_id": &"u", "authoritative": true, "cfg_hint": {"count": 3}})
-	_check(rex is DotResult and rex.ok and rex.value == 1, "a T-Rex is capped at one per request", str(rex.value if rex is DotResult else rex))
+	_check(rex is GSResult and rex.ok and rex.value == 1, "a T-Rex is capped at one per request", str(rex.value if rex is GSResult else rex))
 	_check(rt.spawner.world_count() == 3 and rt.describe()["monsters"] == 3, "and the runtime describes what it holds")
 	_done()

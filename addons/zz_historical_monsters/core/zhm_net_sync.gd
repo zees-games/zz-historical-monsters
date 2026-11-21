@@ -12,7 +12,7 @@ const SPECIES_BITS := 3
 ## `action + 1`, so that 0 means "let the gait decide" (the body's -1) and no sign crosses the wire.
 const ACTION_BITS := 5
 const VARIANT_BITS := 2
-## One bit per limb (`DotNpcLimbs.MAX_LIMBS`): set when it has been shot off.
+## One bit per limb (`GSNpcLimbs.MAX_LIMBS`): set when it has been shot off.
 const LIMB_BITS := 8
 
 const BODY_SCENE := "res://addons/zz_historical_monsters/runtime/zhm_body.tscn"
@@ -20,7 +20,7 @@ const BODY_SCENE := "res://addons/zz_historical_monsters/runtime/zhm_body.tscn"
 
 ## One entry per replicated property, in dot-npc's shape: `{property, type, bits, interpolated}`.
 static func specs() -> Array[Dictionary]:
-	var out: Array[Dictionary] = DotNpcNetSync.specs()
+	var out: Array[Dictionary] = GSNpcNetSync.specs()
 	out.append({"property": &"net_species", "type": "UINT", "bits": SPECIES_BITS, "interpolated": false})
 	out.append({"property": &"net_action", "type": "UINT", "bits": ACTION_BITS, "interpolated": false})
 	out.append({"property": &"net_variant", "type": "UINT", "bits": VARIANT_BITS, "interpolated": false})
@@ -38,18 +38,18 @@ static func species_of(index: int) -> StringName:
 
 
 ## Server: copies a monster onto the replicating object [param into].
-static func pull(npc: DotNpcInstance, body: Node, into: Object) -> void:
+static func pull(npc: GSNpcInstance, body: Node, into: Object) -> void:
 	if npc == null or body == null or into == null:
 		return
 	var action := int(body.get(&"action"))
-	var state := DotNpcNetSync.State.IDLE
+	var state := GSNpcNetSync.State.IDLE
 	if not npc.is_alive() or action == Pose.Anim.DEAD:
-		state = DotNpcNetSync.State.DEAD
+		state = GSNpcNetSync.State.DEAD
 	elif action >= 0:
-		state = DotNpcNetSync.State.ATTACKING
+		state = GSNpcNetSync.State.ATTACKING
 	elif float(body.call(&"gait_speed")) > 0.4:
-		state = DotNpcNetSync.State.MOVING
-	DotNpcNetSync.pull(npc, into, state)
+		state = GSNpcNetSync.State.MOVING
+	GSNpcNetSync.pull(npc, into, state)
 	into.set(&"net_species", maxi(species_index(StringName(body.get(&"species"))), 0))
 	into.set(&"net_action", clampi(action + 1, 0, (1 << ACTION_BITS) - 1))
 	into.set(&"net_variant", clampi(int(body.get(&"variant")), 0, (1 << VARIANT_BITS) - 1))
@@ -60,7 +60,7 @@ static func pull(npc: DotNpcInstance, body: Node, into: Object) -> void:
 static func apply(body: Node3D, from: Object) -> void:
 	if body == null or from == null:
 		return
-	DotNpcNetSync.apply(body, from)
+	GSNpcNetSync.apply(body, from)
 	body.set(&"action", int(from.get(&"net_action")) - 1)
 	body.set(&"variant", int(from.get(&"net_variant")))
 	body.set(&"limb_mask", int(from.get(&"net_limbs")))

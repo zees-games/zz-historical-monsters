@@ -57,7 +57,7 @@ func setup(p_species: StringName, body: Dictionary, limb_defs: Dictionary = {}) 
 		add_child(view)
 
 	if limbs == null:
-		limbs = DotNpcLimbs.new()
+		limbs = GSNpcLimbs.new()
 		limbs.name = "Limbs"
 		add_child(limbs)
 		limbs.connect(&"severed", _on_severed)

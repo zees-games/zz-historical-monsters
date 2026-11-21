@@ -1,7 +1,7 @@
 extends Node
 
 ## A monster shot by a hitscan: dot-combat resolves a tagged hitbox to a limb, the duck-typed `limb_target_fn`
-## hands it to `DotNpcLimbs`, the head comes off and the replicated bitmask reaches a client mirror.
+## hands it to `GSNpcLimbs`, the head comes off and the replicated bitmask reaches a client mirror.
 ## Run: `./game.sh --no-parse test zhm_shoot`. The pack never names dot-combat; only this suite does.
 
 const Config := preload("../addons/zz_historical_monsters/core/zhm_config.gd")
@@ -18,7 +18,7 @@ var _completed := 0
 
 
 func _ready() -> void:
-	DotLog.set_level(DotLog.Level.ERROR)
+	GSLog.set_level(GSLog.Level.ERROR)
 	_run.call_deferred()
 
 
@@ -64,23 +64,23 @@ func _test_head_shot() -> void:
 	var head_at: Vector3 = (limbs.call(&"points_of", defs["head"]) as PackedVector3Array)[0]
 	var head_hp: float = defs["head"]["health"]
 
-	var manager := DotCombatManager.new()
+	var manager := GSCombatManager.new()
 	manager.register_service = false
-	manager.trace = DotTraceFlat.new()
-	manager.rules = DotDamageRules.new()
-	manager.config = DotCombatConfig.new()
+	manager.trace = GSTraceFlat.new()
+	manager.rules = GSDamageRules.new()
+	manager.config = GSCombatConfig.new()
 	add_child(manager)
 
-	var health := DotHealth.new()
+	var health := GSHealth.new()
 	health.max_health = 100000.0
 	health.regen_per_second = 0.0
 	body.add_child(health)
-	var set_node := DotHitboxSet.new()
+	var set_node := GSHitboxSet.new()
 	set_node.bounds_offset = head_at
 	set_node.bounds_radius = 3.0
-	var box := DotHitbox.new()
-	box.shape = DotHitbox.Shape.SPHERE
-	box.group = DotHitGroup.HEAD
+	var box := GSHitbox.new()
+	box.shape = GSHitbox.Shape.SPHERE
+	box.group = GSHitGroup.HEAD
 	box.limb = &"head"
 	box.radius = float(defs["head"]["radius"])
 	box.position = head_at
@@ -95,10 +95,10 @@ func _test_head_shot() -> void:
 	var severed: Array = []
 	body.connect(&"limb_severed", func(l: StringName, info: Dictionary) -> void: severed.append([l, info]))
 
-	var type := DotDamageType.make(&"bullet", "Bullet")
+	var type := GSDamageType.make(&"bullet", "Bullet")
 	manager.register_damage_type(type)
 
-	var weak := DotShot.make(&"rifle", 1, 10, 1)
+	var weak := GSShot.make(&"rifle", 1, 10, 1)
 	weak.damage = head_hp * 0.05
 	weak.damage_type = type
 	weak.max_range = 200.0
@@ -109,7 +109,7 @@ func _test_head_shot() -> void:
 	_check(weak.damages.size() == 1 and weak.damages[0].limb == &"head", "the shot lands on the head hitbox and says which limb")
 	_check(not bool(limbs.call(&"is_severed", &"head")) and severed.is_empty(), "a hit under the limb's threshold leaves the head on")
 
-	var strong := DotShot.make(&"rifle", 1, 11, 2)
+	var strong := GSShot.make(&"rifle", 1, 11, 2)
 	strong.damage = head_hp
 	strong.damage_type = type
 	strong.max_range = 200.0
@@ -134,7 +134,7 @@ func _test_head_shot() -> void:
 	_check(not bool(mirror.get(&"limbs").call(&"is_severed", &"armL")), "and only the head")
 	_check(NetSync.specs().any(func(s: Dictionary) -> bool: return s["property"] == &"net_limbs"), "net_limbs is in the replicated specs")
 
-	var again := DotShot.make(&"rifle", 1, 12, 3)
+	var again := GSShot.make(&"rifle", 1, 12, 3)
 	again.damage = head_hp
 	again.damage_type = type
 	again.max_range = 200.0

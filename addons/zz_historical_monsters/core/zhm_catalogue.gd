@@ -1,7 +1,7 @@
 class_name ZhmCatalogue
 extends RefCounted
 
-## The monsters as [DotNpcDef]s, built from [ZhmConfig]: [method add_to] a host catalogue or [method build] one.
+## The monsters as [GSNpcDef]s, built from [ZhmConfig]: [method add_to] a host catalogue or [method build] one.
 ## Definitions name body scene and brain by path relative to this file, so a rebased mounted pack finds them.
 
 const Config := preload("zhm_config.gd")
@@ -26,15 +26,15 @@ static func species_of(npc_id: StringName) -> StringName:
 	return &""
 
 
-static func def_for(species: StringName, config: Config) -> DotNpcDef:
+static func def_for(species: StringName, config: Config) -> GSNpcDef:
 	var c := config.species(species)
 	var base := dir()
-	var def := DotNpcDef.make(id_of(species), base.path_join("runtime/zhm_body.tscn"))
+	var def := GSNpcDef.make(id_of(species), base.path_join("runtime/zhm_body.tscn"))
 	def.display_name = str(c.get("name", String(species)))
 	def.category = &"monster"
 	def.faction = &"hostile"
 	def.brain_script_path = base.path_join("runtime/zhm_brain.gd")
-	def.weight = {&"trex": DotNpcDef.Weight.BOSS, &"allosaurus": DotNpcDef.Weight.HEAVY, &"bear": DotNpcDef.Weight.HEAVY}.get(species, DotNpcDef.Weight.NORMAL)
+	def.weight = {&"trex": GSNpcDef.Weight.BOSS, &"allosaurus": GSNpcDef.Weight.HEAVY, &"bear": GSNpcDef.Weight.HEAVY}.get(species, GSNpcDef.Weight.NORMAL)
 	def.cost = int(c.get("cost", 4))
 	def.max_health = float(c.get("health", 500.0))
 	def.move_speed = float(c.get("run_speed", 6.0))
@@ -50,15 +50,15 @@ static func def_for(species: StringName, config: Config) -> DotNpcDef:
 
 
 ## All of them, in a catalogue of their own.
-static func build(config: Config = null) -> DotNpcCatalogue:
-	var cat := DotNpcCatalogue.new()
+static func build(config: Config = null) -> GSNpcCatalogue:
+	var cat := GSNpcCatalogue.new()
 	add_to(cat, config)
 	return cat
 
 
 ## Adds them to [param catalogue]. Returns how many were added; a definition that fails
 ## validation is logged and skipped, so one bad number loses one monster, not all.
-static func add_to(catalogue: DotNpcCatalogue, config: Config = null) -> int:
+static func add_to(catalogue: GSNpcCatalogue, config: Config = null) -> int:
 	var cfg := config if config != null else Config.load_config()
 	var added := 0
 	for sp in Config.SPECIES:
@@ -66,5 +66,5 @@ static func add_to(catalogue: DotNpcCatalogue, config: Config = null) -> int:
 		if res.ok:
 			added += 1
 		else:
-			DotLog.warn("zhm.catalogue", "a monster definition was refused", {"species": String(sp), "why": res.error.message})
+			GSLog.warn("zhm.catalogue", "a monster definition was refused", {"species": String(sp), "why": res.error.message})
 	return added

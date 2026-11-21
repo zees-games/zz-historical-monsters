@@ -39,15 +39,15 @@ func _npc_ready() -> void:
 		body.call(&"setup", species, cfg.get("body", {}), cfg.get("limbs", {}))
 		if body.has_signal(&"limb_severed"):
 			body.connect(&"limb_severed", _limb_lost)
-	DotLog.debug(CHANNEL, "monster ready", {"species": String(species), "id": npc.instance_id})
+	GSLog.debug(CHANNEL, "monster ready", {"species": String(species), "id": npc.instance_id})
 
 
 func _build() -> void:
-	machine = DotNpcAiMachine.new()
+	machine = GSNpcAiMachine.new()
 	initial_state = &"idle"
 
-	_add(DotNpcAiState.make(&"idle", _tick_idle).when(_has_prey, &"hunt"))
-	_add(DotNpcAiState.make(&"hunt", _tick_hunt).when(_no_prey, &"idle"))
+	_add(GSNpcAiState.make(&"idle", _tick_idle).when(_has_prey, &"hunt"))
+	_add(GSNpcAiState.make(&"hunt", _tick_hunt).when(_no_prey, &"idle"))
 
 	match Config.archetype(species):
 		&"trex":
@@ -59,14 +59,14 @@ func _build() -> void:
 
 
 
-func _add(state: DotNpcAiState) -> DotNpcAiState:
+func _add(state: GSNpcAiState) -> GSNpcAiState:
 	_by_id[state.id] = state
 	machine.add(state)
 	return state
 
 
 func _action(id: StringName, anim: int, windup: float, recover: float, effect: Callable) -> void:
-	var state := DotNpcAiState.make(id, _tick_action.bind(effect, windup))
+	var state := GSNpcAiState.make(id, _tick_action.bind(effect, windup))
 	state.on_enter = _enter_action.bind(id, anim)
 	state.on_exit = _exit_action
 	state.after(windup + recover, &"hunt")
@@ -82,21 +82,21 @@ func _build_trex() -> void:
 	_action(&"sweep", Pose.Anim.SWEEP, _f(sweep, "windup", 0.8), _f(sweep, "recover", 0.6), _land_sweep)
 	_action(&"roar", Pose.Anim.ROAR, _f(roar, "windup", 1.0), 1.0, _land_roar)
 
-	var wind := DotNpcAiState.make(&"charge_wind", _tick_charge_wind)
+	var wind := GSNpcAiState.make(&"charge_wind", _tick_charge_wind)
 	wind.on_enter = _enter_charge_wind
 	wind.after(_f(charge, "windup", 1.1), &"charge")
 	_add(wind)
-	var run := DotNpcAiState.make(&"charge", _tick_charge)
+	var run := GSNpcAiState.make(&"charge", _tick_charge)
 	run.on_enter = _enter_charge
 	run.on_exit = _exit_action
 	run.after(_f(charge, "duration", 2.4), &"stagger")
 	_add(run)
-	var stagger := DotNpcAiState.make(&"stagger", _tick_halt_action.bind(Pose.Anim.STAGGER))
+	var stagger := GSNpcAiState.make(&"stagger", _tick_halt_action.bind(Pose.Anim.STAGGER))
 	stagger.on_exit = _exit_action
 	stagger.after(_f(charge, "recover", 1.2), &"hunt")
 	_add(stagger)
 
-	var hunt: DotNpcAiState = _by_id[&"hunt"]
+	var hunt: GSNpcAiState = _by_id[&"hunt"]
 	# Priority is order: a sweep when somebody is close, a bite in reach, a charge or a roar across
 	# a gap. A transition is tried in the order it was added.
 	hunt.when(_can_sweep, &"sweep")
@@ -110,21 +110,21 @@ func _build_tiger() -> void:
 	var pounce: Dictionary = cfg.get("pounce", {})
 	_action(&"claw", Pose.Anim.BITE, _f(claw, "windup", 0.25), 0.3, _land_claw.bind(claw))
 
-	var wind := DotNpcAiState.make(&"pounce_wind", _tick_pounce_wind)
+	var wind := GSNpcAiState.make(&"pounce_wind", _tick_pounce_wind)
 	wind.on_enter = _enter_pounce_wind
 	wind.after(_f(pounce, "windup", 0.6), &"leap")
 	_add(wind)
-	var leap := DotNpcAiState.make(&"leap", _tick_leap)
+	var leap := GSNpcAiState.make(&"leap", _tick_leap)
 	leap.on_enter = _enter_leap
 	leap.on_exit = _exit_action
 	leap.after(3.0, &"land")
 	_add(leap)
-	var land := DotNpcAiState.make(&"land", _tick_halt_action.bind(Pose.Anim.LAND))
+	var land := GSNpcAiState.make(&"land", _tick_halt_action.bind(Pose.Anim.LAND))
 	land.on_exit = _exit_action
 	land.after(_f(pounce, "recover", 0.7), &"hunt")
 	_add(land)
 
-	var hunt: DotNpcAiState = _by_id[&"hunt"]
+	var hunt: GSNpcAiState = _by_id[&"hunt"]
 	hunt.when(_can_bite.bind(claw), &"claw")
 	hunt.when(_can_pounce, &"pounce_wind")
 
@@ -139,17 +139,17 @@ func _build_bear() -> void:
 	_action(&"maul", Pose.Anim.MAUL, first + gap * float(hits - 1), 0.5, _land_maul.bind(maul, first, gap, hits))
 	_action(&"slam", Pose.Anim.SLAM, _f(slam, "windup", 0.95), _f(slam, "recover", 0.8), _land_slam)
 
-	var hunt: DotNpcAiState = _by_id[&"hunt"]
+	var hunt: GSNpcAiState = _by_id[&"hunt"]
 	hunt.when(_can_slam, &"slam")
 	hunt.when(_can_bite.bind(maul), &"maul")
 
 
 
-func _has_prey(_c: DotNpcAiContext) -> bool:
+func _has_prey(_c: GSNpcAiContext) -> bool:
 	return npc != null and npc.has_target()
 
 
-func _no_prey(_c: DotNpcAiContext) -> bool:
+func _no_prey(_c: GSNpcAiContext) -> bool:
 	return npc == null or not npc.has_target()
 
 
@@ -170,11 +170,11 @@ static func _f(d: Dictionary, key: String, fallback: float) -> float:
 	return float(v) if v is float or v is int else fallback
 
 
-func _can_bite(_c: DotNpcAiContext, attack: Dictionary) -> bool:
+func _can_bite(_c: GSNpcAiContext, attack: Dictionary) -> bool:
 	return _ready_to(&"melee") and _dist() <= _f(attack, "reach", 2.0)
 
 
-func _can_sweep(_c: DotNpcAiContext) -> bool:
+func _can_sweep(_c: GSNpcAiContext) -> bool:
 	var sweep: Dictionary = cfg.get("tail_sweep", {})
 	if not _ready_to(&"sweep"):
 		return false
@@ -183,7 +183,7 @@ func _can_sweep(_c: DotNpcAiContext) -> bool:
 	return not _targets_within(radius * 0.85).is_empty()
 
 
-func _can_charge(_c: DotNpcAiContext) -> bool:
+func _can_charge(_c: GSNpcAiContext) -> bool:
 	var ch: Dictionary = cfg.get("charge", {})
 	if not _ready_to(&"charge"):
 		return false
@@ -191,7 +191,7 @@ func _can_charge(_c: DotNpcAiContext) -> bool:
 	return d >= _f(ch, "min_distance", 10.0) and d <= _f(ch, "max_distance", 30.0)
 
 
-func _can_roar(_c: DotNpcAiContext) -> bool:
+func _can_roar(_c: GSNpcAiContext) -> bool:
 	var r: Dictionary = cfg.get("roar", {})
 	if not _ready_to(&"roar"):
 		return false
@@ -199,7 +199,7 @@ func _can_roar(_c: DotNpcAiContext) -> bool:
 	return d >= _f(r, "min_distance", 5.0) and d <= _f(r, "range", 16.0)
 
 
-func _can_pounce(_c: DotNpcAiContext) -> bool:
+func _can_pounce(_c: GSNpcAiContext) -> bool:
 	var p: Dictionary = cfg.get("pounce", {})
 	if not _ready_to(&"pounce"):
 		return false
@@ -207,7 +207,7 @@ func _can_pounce(_c: DotNpcAiContext) -> bool:
 	return d >= _f(p, "min_distance", 4.0) and d <= _f(p, "max_distance", 16.0)
 
 
-func _can_slam(_c: DotNpcAiContext) -> bool:
+func _can_slam(_c: GSNpcAiContext) -> bool:
 	var s: Dictionary = cfg.get("slam", {})
 	if not _ready_to(&"slam"):
 		return false
@@ -217,7 +217,7 @@ func _can_slam(_c: DotNpcAiContext) -> bool:
 
 
 
-func _tick_idle(_c: DotNpcAiContext) -> void:
+func _tick_idle(_c: GSNpcAiContext) -> void:
 	var body := _body()
 	if body != null:
 		body.set(&"action", -1)
@@ -230,7 +230,7 @@ func _tick_idle(_c: DotNpcAiContext) -> void:
 	_tick_bleeds()
 
 
-func _tick_hunt(_c: DotNpcAiContext) -> void:
+func _tick_hunt(_c: GSNpcAiContext) -> void:
 	var body := _body()
 	if body != null:
 		body.set(&"action", -1)
@@ -243,14 +243,14 @@ func _tick_hunt(_c: DotNpcAiContext) -> void:
 	steer_along_path(to, (_f(cfg, "run_speed", 6.0) if far else _f(cfg, "walk_speed", 3.0) * 1.4) * _scale(&"speed_scale"), context.delta)
 
 
-func _tick_halt_action(_c: DotNpcAiContext, anim: int) -> void:
+func _tick_halt_action(_c: GSNpcAiContext, anim: int) -> void:
 	halt()
 	_set_action(anim)
 	_tick_bleeds()
 
 
 
-func _enter_action(_c: DotNpcAiContext, id: StringName, anim: int) -> void:
+func _enter_action(_c: GSNpcAiContext, id: StringName, anim: int) -> void:
 	_landed = false
 	_hit_victims.clear()
 	_combo = 0
@@ -259,15 +259,15 @@ func _enter_action(_c: DotNpcAiContext, id: StringName, anim: int) -> void:
 	started[id] = int(started.get(id, 0)) + 1
 	halt()
 	_face_target()
-	DotLog.debug(CHANNEL, "monster begins an attack", {"species": String(species), "attack": String(id), "npc": npc.instance_id})
+	GSLog.debug(CHANNEL, "monster begins an attack", {"species": String(species), "attack": String(id), "npc": npc.instance_id})
 
 
-func _exit_action(_c: DotNpcAiContext) -> void:
+func _exit_action(_c: GSNpcAiContext) -> void:
 	_set_action(-1)
 
 
 ## Holds still facing the target until [param windup], then lands the effect once.
-func _tick_action(_c: DotNpcAiContext, effect: Callable, windup: float) -> void:
+func _tick_action(_c: GSNpcAiContext, effect: Callable, windup: float) -> void:
 	halt()
 	_tick_bleeds()
 	var t := context.now - _entered_at()
@@ -353,28 +353,28 @@ func _land_slam(t: float, windup: float) -> void:
 
 
 
-func _enter_charge_wind(_c: DotNpcAiContext) -> void:
+func _enter_charge_wind(_c: GSNpcAiContext) -> void:
 	started[&"charge"] = int(started.get(&"charge", 0)) + 1
 	_cooldown[&"charge"] = context.now + _f(cfg.get("charge", {}), "cooldown", 13.0) + _f(cfg.get("charge", {}), "windup", 1.1)
 	_set_action(Pose.Anim.CHARGE_WIND)
 	halt()
-	DotLog.debug(CHANNEL, "monster begins an attack", {"species": String(species), "attack": "charge", "npc": npc.instance_id})
+	GSLog.debug(CHANNEL, "monster begins an attack", {"species": String(species), "attack": "charge", "npc": npc.instance_id})
 
 
-func _tick_charge_wind(_c: DotNpcAiContext) -> void:
+func _tick_charge_wind(_c: GSNpcAiContext) -> void:
 	halt()
 	_face_target()
 	_tick_bleeds()
 
 
-func _enter_charge(_c: DotNpcAiContext) -> void:
+func _enter_charge(_c: GSNpcAiContext) -> void:
 	_hit_victims.clear()
 	_locked_dir = _dir_to_target()
 	_set_action(Pose.Anim.CHARGE)
 
 
 ## Runs straight along the direction locked at the end of the windup; it does not steer, so sidestepping is the counter.
-func _tick_charge(_c: DotNpcAiContext) -> void:
+func _tick_charge(_c: GSNpcAiContext) -> void:
 	var ch: Dictionary = cfg.get("charge", {})
 	var speed := _f(ch, "speed", 13.0)
 	steer_toward(npc.position() + _locked_dir * 10.0, speed, context.delta)
@@ -388,21 +388,21 @@ func _tick_charge(_c: DotNpcAiContext) -> void:
 
 
 
-func _enter_pounce_wind(_c: DotNpcAiContext) -> void:
+func _enter_pounce_wind(_c: GSNpcAiContext) -> void:
 	started[&"pounce"] = int(started.get(&"pounce", 0)) + 1
 	_cooldown[&"pounce"] = context.now + _f(cfg.get("pounce", {}), "cooldown", 6.0)
 	_set_action(Pose.Anim.POUNCE_WIND)
 	halt()
-	DotLog.debug(CHANNEL, "monster begins an attack", {"species": String(species), "attack": "pounce", "npc": npc.instance_id})
+	GSLog.debug(CHANNEL, "monster begins an attack", {"species": String(species), "attack": "pounce", "npc": npc.instance_id})
 
 
-func _tick_pounce_wind(_c: DotNpcAiContext) -> void:
+func _tick_pounce_wind(_c: GSNpcAiContext) -> void:
 	halt()
 	_face_target()
 	_tick_bleeds()
 
 
-func _enter_leap(_c: DotNpcAiContext) -> void:
+func _enter_leap(_c: GSNpcAiContext) -> void:
 	var p: Dictionary = cfg.get("pounce", {})
 	_hit_victims.clear()
 	_landed = false
@@ -421,7 +421,7 @@ func _enter_leap(_c: DotNpcAiContext) -> void:
 		(b as CharacterBody3D).velocity.y = _vy
 
 
-func _tick_leap(_c: DotNpcAiContext) -> void:
+func _tick_leap(_c: GSNpcAiContext) -> void:
 	var p: Dictionary = cfg.get("pounce", {})
 	var b := _body() as CharacterBody3D
 	if b == null:
@@ -487,7 +487,7 @@ func _scale(method: StringName) -> float:
 ## the kill is scored like any other.
 func _limb_lost(limb: StringName, info: Dictionary) -> void:
 	var d: Dictionary = info.get("def", {})
-	DotLog.info(CHANNEL, "monster loses a limb", {"species": String(species), "limb": String(limb), "npc": npc.instance_id})
+	GSLog.info(CHANNEL, "monster loses a limb", {"species": String(species), "limb": String(limb), "npc": npc.instance_id})
 	if bool(d.get("kills", false)) and npc.is_alive() and director != null and director.has_method(&"damage"):
 		director.call(&"damage", npc.instance_id, npc.health + 1.0, &"decapitation")
 
@@ -561,7 +561,7 @@ func _hit(victim: StringName, amount: float, kind: StringName, impulse: Vector3)
 	var h := _host()
 	if h == null or not h.has_method(&"zhm_hit"):
 		return
-	DotLog.debug(CHANNEL, "monster hits", {"species": String(species), "kind": String(kind), "victim": String(victim), "amount": snappedf(amount, 0.1)})
+	GSLog.debug(CHANNEL, "monster hits", {"species": String(species), "kind": String(kind), "victim": String(victim), "amount": snappedf(amount, 0.1)})
 	h.call(&"zhm_hit", npc, victim, amount * _scale(&"attack_scale"), kind, {"impulse": impulse, "source": npc.position()})
 
 
@@ -569,7 +569,7 @@ func _status(victim: StringName, st: StringName, seconds: float) -> void:
 	var h := _host()
 	if h == null or not h.has_method(&"zhm_status"):
 		return
-	DotLog.debug(CHANNEL, "monster afflicts", {"species": String(species), "status": String(st), "victim": String(victim), "seconds": seconds})
+	GSLog.debug(CHANNEL, "monster afflicts", {"species": String(species), "status": String(st), "victim": String(victim), "seconds": seconds})
 	h.call(&"zhm_status", victim, st, seconds, {"source": npc.position()})
 
 

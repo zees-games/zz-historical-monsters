@@ -1,10 +1,10 @@
-extends DotNetBehaviour
+extends GSNetBehaviour
 
 ## The suite's stand-in for a host's net behaviour, the only file here that names dot-net: the pack ships
 ## [ZhmNetSync] as data and a host writes this much. Server pulls each tick; a client builds the mirror from the
 ## first snapshot and applies every later one.
 
-var npc: DotNpcInstance = null
+var npc: GSNpcInstance = null
 var body: Node = null
 ## Where a client puts the bodies it builds.
 var world: Node = null
@@ -23,7 +23,7 @@ var net_limbs: int = 0
 
 func _register_net_vars() -> void:
 	for spec in ZhmNetSync.specs():
-		var field := replicate(spec["property"], DotNetVar.Type[spec["type"]])
+		var field := replicate(spec["property"], GSNetVar.Type[spec["type"]])
 		if int(spec["bits"]) > 0:
 			field.bits(int(spec["bits"]))
 		if bool(spec["interpolated"]):

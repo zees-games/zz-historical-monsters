@@ -1,8 +1,8 @@
 class_name ZhmConfig
 extends RefCounted
 
-## Every number that tunes a monster: yml merged over [method defaults] by DotAddonConfig, then env, then argv.
-## With no yml a monster must still spawn. DotAddonConfig is reached by reflection: naming it fails to parse
+## Every number that tunes a monster: yml merged over [method defaults] by GSAddonConfig, then env, then argv.
+## With no yml a monster must still spawn. GSAddonConfig is reached by reflection: naming it fails to parse
 ## against an older dot-core, and a config that cannot parse is a pack that cannot load.
 
 const CHANNEL := "zhm.config"
@@ -175,21 +175,21 @@ static func load_config() -> ZhmConfig:
 	out.data = defaults()
 
 	if not ResourceLoader.exists(ADDON_CONFIG_PATH):
-		DotLog.info(CHANNEL, "no DotAddonConfig in this dot-core, using built-in defaults", {})
+		GSLog.info(CHANNEL, "no GSAddonConfig in this dot-core, using built-in defaults", {})
 		return out
 
 	var script: Variant = load(ADDON_CONFIG_PATH)
 	if not (script is Script) or not (script as Script).has_method(&"load_dir"):
-		DotLog.info(CHANNEL, "DotAddonConfig is not callable, using built-in defaults", {})
+		GSLog.info(CHANNEL, "GSAddonConfig is not callable, using built-in defaults", {})
 		return out
 
 	var res: Variant = (script as Script).call(&"load_dir", ADDON, defaults())
-	if res is DotResult and (res as DotResult).ok and (res as DotResult).value is Dictionary:
-		out.data = (res as DotResult).value
+	if res is GSResult and (res as GSResult).ok and (res as GSResult).value is Dictionary:
+		out.data = (res as GSResult).value
 		out.source = String(script.call(&"dir_for", ADDON)) if (script as Script).has_method(&"dir_for") else "cfg"
-		DotLog.debug(CHANNEL, "monster config loaded", {"from": out.source})
-	elif res is DotResult:
-		DotLog.warn(CHANNEL, "monster config refused, using built-in defaults", {"why": (res as DotResult).error.message})
+		GSLog.debug(CHANNEL, "monster config loaded", {"from": out.source})
+	elif res is GSResult:
+		GSLog.warn(CHANNEL, "monster config refused, using built-in defaults", {"why": (res as GSResult).error.message})
 
 	return out
 

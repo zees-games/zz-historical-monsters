@@ -48,7 +48,7 @@ func profile(id: String) -> Dictionary:
 	var c := _cfg.species(StringName(id))
 	var def := Catalogue.def_for(StringName(id), _cfg)
 	var rows: Array = []
-	var weight := {DotNpcDef.Weight.NORMAL: "Normal", DotNpcDef.Weight.HEAVY: "Heavy", DotNpcDef.Weight.BOSS: "Boss"}
+	var weight := {GSNpcDef.Weight.NORMAL: "Normal", GSNpcDef.Weight.HEAVY: "Heavy", GSNpcDef.Weight.BOSS: "Boss"}
 	rows.append(["Health", _n(def.max_health)])
 	rows.append(["Speed", "%s m/s walking, %s m/s running" % [_n(c.get("walk_speed")), _n(c.get("run_speed"))]])
 	var primary := ""

@@ -53,17 +53,17 @@ static func spawn_entries() -> Array[Dictionary]:
 	return out
 
 
-## Runs on the server. Returns a DotResult (the contract allows it).
+## Runs on the server. Returns a GSResult (the contract allows it).
 static func _spawn(ctx: Dictionary, species: StringName) -> Variant:
 	if not bool(ctx.get("authoritative", false)):
-		return DotResult.fail(DotError.CODE_INVALID, "Monsters are spawned by the server.")
+		return GSResult.fail(GSError.CODE_INVALID, "Monsters are spawned by the server.")
 	var world: Variant = ctx.get("world")
 	if not (world is Node) or not is_instance_valid(world):
-		return DotResult.fail(DotError.CODE_INVALID, "No world to put a monster in.")
+		return GSResult.fail(GSError.CODE_INVALID, "No world to put a monster in.")
 
 	var runtime: Object = Runtime.find_or_create(world as Node)
 	if runtime.spawner.world_count() >= MAX_ALIVE:
-		return DotResult.fail(DotError.CODE_INVALID, "Too many monsters already.")
+		return GSResult.fail(GSError.CODE_INVALID, "Too many monsters already.")
 
 	var at: Vector3 = ctx.get("at", Vector3.ZERO)
 	var hint: Variant = ctx.get("cfg_hint", {})
@@ -73,7 +73,7 @@ static func _spawn(ctx: Dictionary, species: StringName) -> Variant:
 		var spot := at + Vector3(float(i) * 2.5, 0.0, 0.0)
 		if runtime.call(&"spawn", species, spot, StringName(str(ctx.get("player_id", &"")))) != null:
 			made += 1
-	DotLog.info(CHANNEL, "spawn menu asked for monsters", {"species": String(species), "made": made, "by": str(ctx.get("player_id", ""))})
+	GSLog.info(CHANNEL, "spawn menu asked for monsters", {"species": String(species), "made": made, "by": str(ctx.get("player_id", ""))})
 	if made == 0:
-		return DotResult.fail(DotError.CODE_INVALID, "The monster could not be spawned there.")
-	return DotResult.success(made)
+		return GSResult.fail(GSError.CODE_INVALID, "The monster could not be spawned there.")
+	return GSResult.success(made)

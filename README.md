@@ -33,7 +33,7 @@ Six infected, mutated animals that hunt players down: a T-Rex, an allosaurus, a 
 
 - Spawn menu: `addons/zz_historical_monsters/spawn_provider.gd` has a static `spawn_entries()`. Each entry's `spawn` is `{health, speed, damage, reach, body, boss?}`.
 - Damage: the monsters report to a host through `zhm_targets()`, `zhm_hit(npc, victim, amount, kind, info)` and `zhm_status(victim, status, seconds, info)`. Give the host as the spawner's meta `zhm_host` (or `ZhmRuntime.host`). Without one, monsters still chase, and their hits are recorded and signalled (`ZhmHost`).
-- Logging goes through `DotLog` on `zhm.*` channels.
+- Logging goes through `GSLog` on `zhm.*` channels.
 
 <!-- gen_readme:items -->
 ## The monsters
@@ -200,7 +200,7 @@ Each species lists its `limbs:` in its yml:
 | `kills` | On the head: losing it ends the monster |
 | `slow`, `attack` | Multipliers on speed and damage once the limb is gone |
 
-A game's shot code calls `body.zhm_limb_hit(world_point, damage, impulse)` on the server, beside the damage it does to the monster. It returns the limb that came off, or `&""`. The limb's stump collapses, the cut drips, and the limb tumbles away as a gib with a blood burst. Which limbs are gone replicates as `net_limbs`, one bit per limb in config order. The machinery is dot-npc's `DotNpcLimbs` and `DotNpcGibs`; see [docs/limb-hook-design.md](docs/limb-hook-design.md).
+A game's shot code calls `body.zhm_limb_hit(world_point, damage, impulse)` on the server, beside the damage it does to the monster. It returns the limb that came off, or `&""`. The limb's stump collapses, the cut drips, and the limb tumbles away as a gib with a blood burst. Which limbs are gone replicates as `net_limbs`, one bit per limb in config order. The machinery is dot-npc's `GSNpcLimbs` and `GSNpcGibs`; see [docs/limb-hook-design.md](docs/limb-hook-design.md).
 
 ## Networking
 

@@ -200,24 +200,24 @@ func _index_bones() -> void:
 	_order = idx
 
 
-## Takes a limb off the drawn body ([DotNpcGibs.sever]); returns the joint in world space.
+## Takes a limb off the drawn body ([GSNpcGibs.sever]); returns the joint in world space.
 func sever_limb(limb: StringName, d: Dictionary, impulse: Vector3) -> Vector3:
 	if skeleton == null:
 		return Vector3.INF
-	return DotNpcGibs.sever(skeleton, _model, "%s/%s" % [species, limb], limb, d, impulse)
+	return GSNpcGibs.sever(skeleton, _model, "%s/%s" % [species, limb], limb, d, impulse)
 
 
 ## Shows the stump of a limb that was already gone: no gib, no blood. Returns the joint in world space.
 func stump_limb(limb: StringName, d: Dictionary) -> Vector3:
 	if skeleton == null:
 		return Vector3.INF
-	return DotNpcGibs.sever(skeleton, _model, "%s/%s" % [species, limb], limb, d, Vector3.ZERO, true)
+	return GSNpcGibs.sever(skeleton, _model, "%s/%s" % [species, limb], limb, d, Vector3.ZERO, true)
 
 
 ## Puts every severed limb back, for a recycled body.
 func restore_limbs() -> void:
 	if skeleton != null:
-		DotNpcGibs.restore(skeleton, _model)
+		GSNpcGibs.restore(skeleton, _model)
 
 
 func has_bone(bone: StringName) -> bool:
