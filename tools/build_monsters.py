@@ -205,9 +205,9 @@ CONFIG = {
             ("armR_lo", "armR_up", (0.73, 0.35, 0.55), (0.74, 0.10, 0.55)),
             ("armR_ft", "armR_lo", (0.74, 0.10, 0.55), (0.80, 0.0, 0.55)),
         ],
-        "skin_dark": 0.95,
-        "skin_tint": (0.80, 0.38, 0.10), "skin_tint_amount": 0.62, "desat": 0.15, "rot": 0.35,
-        "skin_cap": 0.8,
+        "coat": (0.60, 0.14, 0.012), "bump": 0.45, "pattern": "tiger", "stripe_col": (0.045, 0.03, 0.025),
+        "skin_dark": 1.0, "skin_tint": (0.80, 0.38, 0.10), "skin_tint_amount": 0.0, "desat": 0.0, "rot": 0.25,
+        "skin_cap": 0.85,
         "wounds": [
             (0.45, 0.62, 1.0, 0.55, 0.12, "ribs"),
             (0.70, 0.66, -1.0, 0.45, 0.10, "flesh"),
@@ -229,7 +229,7 @@ CONFIG = {
     },
     "thylacine": {
         "length": 3.0,
-        "decimate": 0.5,
+        "decimate": 0.5, "widen": (1.7, 3.6), "weld": 0.004, "close_holes": 40,
         "bones": [
             ("pelvis", None, (0.30, 0.62, 0), (0.42, 0.65, 0)),
             ("spine", "pelvis", (0.42, 0.65, 0), (0.64, 0.68, 0)),
@@ -252,10 +252,10 @@ CONFIG = {
             ("armR_lo", "armR_up", (0.68, 0.34, 0.85), (0.67, 0.10, 0.9)),
             ("armR_ft", "armR_lo", (0.67, 0.10, 0.9), (0.72, 0.0, 0.9)),
         ],
-        "coat": (0.14, 0.08, 0.035), "stripes": (0.16, 0.5, 11),
-        "skin_dark": 0.9,
-        "skin_tint": (0.45, 0.33, 0.2), "skin_tint_amount": 0.25,
-        "skin_cap": 0.55,
+        "coat": (0.46, 0.20, 0.025), "bump": 0.3, "pattern": "thylacine", "stripe_col": (0.07, 0.045, 0.03),
+        "skin_dark": 1.0, "desat": 0.05, "rot": 0.3,
+        "skin_tint": (0.45, 0.33, 0.2), "skin_tint_amount": 0.0,
+        "skin_cap": 0.8,
         "wounds": [
             (0.52, 0.64, 1.0, 0.30, 0.07, "ribs"),
             (0.70, 0.70, -1.0, 0.24, 0.06, "flesh"),
@@ -356,6 +356,16 @@ mesh.transform(Matrix.Scale(scale, 4))
 lo, hi = bounds()
 mesh.transform(Matrix.Translation((-(lo[0] + hi[0]) / 2, -(lo[1] + hi[1]) / 2, -lo[2])))
 mesh.update()
+if "widen" in CFG:
+    # A flat-sided source (the thylacine's is a shell about a fifth as wide as long, with a blade for a tail) gets
+    # a body with some depth: x grows about the spine, and more so toward the tail, so the stiff tail is a rod.
+    w0, wt = CFG["widen"]
+    _l, _h = bounds()
+    for v in mesh.vertices:
+        t = (v.co.y - _l[1]) / (_h[1] - _l[1])
+        k = w0 + (wt - w0) * min(1.0, max(0.0, (0.30 - t) / 0.16))
+        v.co.x *= k
+    mesh.update()
 lo, hi = bounds()
 X0, Y0, Z0 = 0.0, lo[1], 0.0
 HALFW = (hi[0] - lo[0]) / 2
@@ -401,7 +411,10 @@ if "decimate" in CFG:
 # weld, triangulate, subdivide (corner data rides along)
 bm = bmesh.new()
 bm.from_mesh(mesh)
-bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=LEN * 0.0004)
+bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=LEN * CFG.get("weld", 0.0004))
+if CFG.get("close_holes"):
+    # the source is an open shell: its holes show the far side through the body like glass
+    bmesh.ops.holes_fill(bm, edges=[e for e in bm.edges if e.is_boundary], sides=CFG["close_holes"])
 bmesh.ops.triangulate(bm, faces=bm.faces)
 cuts = 0 if SPECIES in ("trex", "allosaurus", "raptor", "thylacine") else 1
 if cuts:

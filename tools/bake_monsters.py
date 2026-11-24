@@ -220,13 +220,36 @@ def bake_body(idx):
     crack2 = np.abs(fbm(P, 26.0 / SC, 2, 4.4))
     crk = np.maximum(smooth(0.035, 0.0, crack), smooth(0.02, 0.0, crack2) * 0.6)
     c1 = mixa(c1, lin((0.05, 0.03, 0.02)), crk * 0.4)
-    if "stripes" in CFG:
-        # The source's colour is a flat painting with no usable fur, so the species names its own coat.
-        s0, s1, cnt = CFG["stripes"]
+    pat = CFG.get("pattern")
+    if pat:
+        # The sources' colour is a flat painting with no usable fur, so the species names its own coat and
+        # markings: dark stripes (tiger: down the flanks, rings on legs and tail; thylacine: across the back).
         fl = (P[:, 1] - Y0) / LEN
-        band = np.sin(fl * (cnt * math.pi / (s1 - s0)) + 0.6) > 0.25
-        on = band & (fl > s0) & (fl < s1) & (P[:, 2] / HEIGHT > 0.5 - 0.5 * (fl - s0))
-        c1 = c1 * np.where(on, 0.3, 1.0)[:, None]
+        fz = P[:, 2] / HEIGHT
+        wp = fbm(P, 5.0 / SC, 3, 21.7)
+        wid = fbm(P, 3.0 / SC, 2, 8.8)
+
+        def bands(phase, duty):
+            s_ = 0.5 + 0.5 * np.sin(phase * 2.0 * math.pi)
+            thr = 1.0 - duty + 0.25 * wid
+            return smooth(thr - 0.05, thr + 0.08, s_)
+
+        if pat == "tiger":
+            torso = bands(fl * 34.0 + fz * 2.0 + wp * 2.6, 0.38) * smooth(0.40, 0.52, fz)
+            rings = bands((fz + fl * 0.5) * 30.0 + wp * 2.0, 0.34) * smooth(0.46, 0.36, fz)
+            tail = bands((fz + fl) * 26.0 + wp, 0.42) * smooth(0.22, 0.16, fl)
+            mark = np.maximum(np.maximum(torso * smooth(0.2, 0.26, fl), rings * smooth(0.2, 0.26, fl)), tail)
+            cream = smooth(0.52, 0.38, fz) * smooth(0.45, 0.1, np.abs(P[:, 0]) / HALFW) * smooth(0.2, 0.3, fl)
+            c1 = mixa(c1, lin((0.80, 0.62, 0.42)), cream * 0.8)
+        else:
+            top = 0.72 - fz
+            reach = 0.07 + 0.2 * smooth(-0.3, 0.3, wid)
+            back = bands((fl - 0.16) / 0.46 * 15.0 + wp * 0.5, 0.34) * smooth(reach, reach * 0.5, top)
+            back = back * smooth(0.14, 0.18, fl) * smooth(0.64, 0.58, fl) * (top > -0.1)
+            tail = bands((fz + fl) * 20.0 + wp * 0.4, 0.4) * smooth(0.2, 0.15, fl) * smooth(0.04, 0.1, fl)
+            mark = np.maximum(back, tail)
+            c1 = mixa(c1, lin((0.52, 0.26, 0.07)), smooth(0.5, 0.36, fz) * smooth(0.14, 0.2, fl) * 0.5)
+        c1 = mixa(c1, lin(CFG["stripe_col"]), mark * 0.93)
     grain = fbm(P, 110.0 / SC, 2, 2.7)
     c1 = c1 * (1.0 + 0.22 * grain)[:, None]
     cap = lin((CFG["skin_cap"],) * 3)[0]
@@ -234,7 +257,7 @@ def bake_body(idx):
     fl_ = CFG.get("skin_floor", 0.0)
     if fl_:
         c1 = np.maximum(c1, lin((fl_,) * 3)[0] * np.array([1.2, 0.8, 0.8]))
-    h_skin = 0.35 * grain - 1.0 * crk + 0.7 * pusm
+    h_skin = (0.35 * grain - 1.0 * crk + 0.7 * pusm) * CFG.get("bump", 1.0)
     w = np.zeros(n)
 
     m, own = wound_field(P)
