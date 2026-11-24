@@ -229,7 +229,7 @@ CONFIG = {
     },
     "thylacine": {
         "length": 3.0,
-        "decimate": 0.5, "widen": (1.7, 3.6), "weld": 0.004, "close_holes": 40,
+        "decimate": 0.5, "widen": (1.7, 3.6), "taper": 0.55, "reshape": {"from": 0.82, "muzzle": 0.75, "neck": 0.66, "drop": 0.05}, "weld": 0.004, "close_holes": 40,
         "bones": [
             ("pelvis", None, (0.30, 0.62, 0), (0.42, 0.65, 0)),
             ("spine", "pelvis", (0.42, 0.65, 0), (0.64, 0.68, 0)),
@@ -344,6 +344,21 @@ mesh.transform(world)
 rot = Matrix.Rotation(math.pi, 4, "Z")
 mesh.transform(rot)
 
+if "reshape" in CFG:
+    # Head and neck of a source that reads as a horse: pull the muzzle back (t above `from` shortens by `muzzle`)
+    # and lower the head and neck by `drop` of the height, so the animal carries its head like a dog.
+    _rs = CFG["reshape"]
+    _vs = np.array([v.co[:] for v in mesh.vertices])
+    _y0, _y1 = _vs[:, 1].min(), _vs[:, 1].max()
+    _hh = _vs[:, 2].max() - _vs[:, 2].min()
+    for v in mesh.vertices:
+        t = (v.co.y - _y0) / (_y1 - _y0)
+        if t > _rs["from"]:
+            v.co.y = _y0 + (_y1 - _y0) * (_rs["from"] + (t - _rs["from"]) * _rs["muzzle"])
+        u = min(1.0, max(0.0, (t - _rs["neck"]) / 0.2))
+        v.co.z -= _hh * _rs["drop"] * u * u * (3 - 2 * u)
+    mesh.update()
+
 
 def bounds():
     vs = np.array([v.co[:] for v in mesh.vertices])
@@ -364,6 +379,9 @@ if "widen" in CFG:
     for v in mesh.vertices:
         t = (v.co.y - _l[1]) / (_h[1] - _l[1])
         k = w0 + (wt - w0) * min(1.0, max(0.0, (0.30 - t) / 0.16))
+        if "taper" in CFG:  # stiff tail: thick at the root, thin at the tip
+            f = min(1.0, t / 0.30)
+            k *= 1.0 if t > 0.30 else CFG["taper"] + (1.0 - CFG["taper"]) * f * f
         v.co.x *= k
     mesh.update()
 lo, hi = bounds()
