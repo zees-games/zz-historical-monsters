@@ -175,7 +175,7 @@ CONFIG = {
         "eye_r": 0.04,
         "mouth_up": ((0.92, 0.85, -0.12), (1.0, 0.85, 0.0)),
         "mouth_lo": ((0.92, 0.83, -0.1), (1.0, 0.82, 0.0)),
-        "teeth": 14, "tooth": 0.08,
+        "teeth": 10, "tooth": 0.08,
         "spines": ((0.30, 0.78), 8, 0.14),
         "spurs": [(0.646, 0.40, 0.48), (0.646, 0.40, -0.48), (0.82, 0.50, 0.5), (0.82, 0.50, -0.5)],
         "flaps": 6, "tumours": 4, "sores": 7,
@@ -801,15 +801,15 @@ def row(a, b, count, lower):
     for sgn in (-1, 1):
         # a swollen, bleeding gum line the teeth are rooted in, so none of them float
         gum = []
-        for k in range(8):
-            t = k / 7
+        for k in range(5):
+            t = k / 4
             p = pa.lerp(pb, t)
             p = Vector((sgn * abs(p.x) * (1.0 - 0.2 * t), p.y, p.z))
             if lower:
                 rel = p - hinge
                 p = hinge + Matrix.Rotation(yaw, 3, "Z") @ (Matrix.Rotation(ang, 3, "X") @ rel)
             gum.append(p + Vector((0, 0, 0.35 * CFG["tooth"] * (1 if lower else -1))))
-        add_tube(gum, CFG["tooth"] * 0.34, CFG["tooth"] * 0.2, GUM, 6, wet=1.0)
+        add_tube(gum, CFG["tooth"] * 0.34, CFG["tooth"] * 0.2, GUM, 4, wet=1.0)
     for k in range(count):
         t = k / max(1, count - 1)
         for sgn in (-1, 1):
@@ -827,8 +827,8 @@ def row(a, b, count, lower):
             hook = Vector((RNG.uniform(-0.2, 0.2), RNG.uniform(0.1, 0.35), 0))
             root = p - dirv * ln * 0.25
             tone = srgb(RNG.choice([(0.9, 0.85, 0.66), (0.78, 0.68, 0.42), (0.62, 0.52, 0.30)]))
-            add_tube([root, p + dirv * ln * 0.4, p + dirv * ln * 0.8 + hook * ln * 0.3, p + dirv * ln + hook * ln * 0.6],
-                     ln * 0.3, ln * 0.03, tone, 5)
+            add_tube([root, p + dirv * ln * 0.55, p + dirv * ln + hook * ln * 0.6],
+                     ln * 0.3, ln * 0.03, tone, 4)
 
 
 half = CFG["teeth"] // 2
@@ -846,7 +846,7 @@ for si, st in enumerate(sites):
     ax = max(range(3), key=lambda i: abs(n[i]))
     sq = [1.0, 1.0, 1.0]
     sq[ax] = 0.32
-    for lobe in range(2):
+    for lobe in range(2 if st.get("major") else 1):
         off = Vector((RNG.uniform(-1, 1), RNG.uniform(-1, 1), RNG.uniform(-1, 1)))
         off[ax] = 0.0
         off *= st["r"] * 0.22
