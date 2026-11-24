@@ -715,6 +715,11 @@ def slab_extent(y, tol):
     sel = vco[np.abs(vco[:, 1] - y) < tol]
     if len(sel) == 0:
         return None
+    # the torso only: the belly is the lowest point near the centreline, so legs in the slab do not
+    # stretch the rib cage down to the ground
+    mid = sel[np.abs(sel[:, 0]) < 0.25 * HALFW]
+    zlow = mid[:, 2].min() if len(mid) else sel[:, 2].min()
+    sel = sel[sel[:, 2] >= zlow]
     return sel[:, 2].min(), sel[:, 2].max(), np.abs(sel[:, 0]).max()
 
 
@@ -792,9 +797,21 @@ for fl, fh, fw in CFG["spurs"]:
 # teeth, in two ragged rows; the lower row rides the swung-open jaw
 def row(a, b, count, lower):
     pa, pb = P(*a), P(*b)
+    GUM = srgb((0.45, 0.06, 0.07))
+    for sgn in (-1, 1):
+        # a swollen, bleeding gum line the teeth are rooted in, so none of them float
+        gum = []
+        for k in range(8):
+            t = k / 7
+            p = pa.lerp(pb, t)
+            p = Vector((sgn * abs(p.x) * (1.0 - 0.2 * t), p.y, p.z))
+            if lower:
+                rel = p - hinge
+                p = hinge + Matrix.Rotation(yaw, 3, "Z") @ (Matrix.Rotation(ang, 3, "X") @ rel)
+            gum.append(p + Vector((0, 0, 0.35 * CFG["tooth"] * (1 if lower else -1))))
+        add_tube(gum, CFG["tooth"] * 0.34, CFG["tooth"] * 0.2, GUM, 6, wet=1.0)
     for k in range(count):
         t = k / max(1, count - 1)
-        side = -1 if k % 2 == 0 else 1
         for sgn in (-1, 1):
             p = pa.lerp(pb, t)
             p = Vector((sgn * abs(p.x) * (1.0 - 0.2 * t), p.y, p.z))
@@ -802,14 +819,43 @@ def row(a, b, count, lower):
                 rel = p - hinge
                 w = 1.0
                 p = hinge + Matrix.Rotation(yaw * w, 3, "Z") @ (Matrix.Rotation(ang * w, 3, "X") @ rel)
-            ln = CFG["tooth"] * RNG.uniform(0.5, 1.2) * (1.1 if t > 0.8 else 1.0)
+            broken = RNG.random() < 0.25
+            ln = CFG["tooth"] * RNG.uniform(0.5, 1.2) * (1.1 if t > 0.8 else 1.0) * (0.45 if broken else 1.0)
+            if RNG.random() < 0.12:
+                continue  # a knocked-out tooth: just the socket
             dirv = Vector((RNG.uniform(-0.25, 0.25), RNG.uniform(0.05, 0.3), 1.0 if lower else -1.0)).normalized()
-            add_tube([p, p + dirv * ln * 0.5, p + dirv * ln], ln * 0.2, ln * 0.03, srgb((0.9, 0.85, 0.66)), 5)
+            hook = Vector((RNG.uniform(-0.2, 0.2), RNG.uniform(0.1, 0.35), 0))
+            root = p - dirv * ln * 0.25
+            tone = srgb(RNG.choice([(0.9, 0.85, 0.66), (0.78, 0.68, 0.42), (0.62, 0.52, 0.30)]))
+            add_tube([root, p + dirv * ln * 0.4, p + dirv * ln * 0.8 + hook * ln * 0.3, p + dirv * ln + hook * ln * 0.6],
+                     ln * 0.3, ln * 0.03, tone, 5)
 
 
 half = CFG["teeth"] // 2
 row(CFG["mouth_up"][0], CFG["mouth_up"][1], half, False)
 row(CFG["mouth_lo"][0], CFG["mouth_lo"][1], half, True)
+
+KIND = K_GUT
+# exposed muscle: a raised, wet, dark-red mass filling each wound that is not a socket, in two lobes, so the
+# opening reads as torn flesh with the hide peeled back round it, not a flat stain
+for si, st in enumerate(sites):
+    if st["kind"] in ("socket", "ribs"):
+        continue
+    n = surface_normal(st["c"])
+    base = snap_to_surface(st["c"])
+    ax = max(range(3), key=lambda i: abs(n[i]))
+    sq = [1.0, 1.0, 1.0]
+    sq[ax] = 0.32
+    for lobe in range(2):
+        off = Vector((RNG.uniform(-1, 1), RNG.uniform(-1, 1), RNG.uniform(-1, 1)))
+        off[ax] = 0.0
+        off *= st["r"] * 0.22
+        tone = [MUSCLE, (0.62, 0.05, 0.07), (0.70, 0.22, 0.20)][(si + lobe) % 3]
+        bverts = add_blob(base + off - n * st["r"] * 0.05, st["r"] * (0.55 - 0.15 * lobe), srgb(tone), tuple(sq), 1)
+        for v in bverts:
+            for f in v.link_faces:
+                for lp in f.loops:
+                    lp[col_layer] = (lp[col_layer][0], lp[col_layer][1], lp[col_layer][2], 1.0)
 
 KIND = K_STRIP
 # hanging strips of torn hide, rooted on the rim of every wound and drooping under their own weight

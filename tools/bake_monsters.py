@@ -406,6 +406,24 @@ def save_png(arr, name):
 save_png(alb, SPECIES + "_albedo")
 save_png(nrm, SPECIES + "_normal")
 
+# The glb also carries the two maps in its body material (baseColorTexture, normalTexture, OPAQUE), so a viewer
+# that only reads the glb (the Nightly asset manager) sees a textured model. The game still draws the body with
+# view/zhm_view.gd's shader, which replaces this material and reads the alpha as wetness.
+nt = body.node_tree
+bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+alb_img = bpy.data.images[SPECIES + "_albedo"]
+nrm_img = bpy.data.images[SPECIES + "_normal"]
+alb_img.colorspace_settings.name = "sRGB"
+tex_a = nt.nodes.new("ShaderNodeTexImage")
+tex_a.image = alb_img
+tex_n = nt.nodes.new("ShaderNodeTexImage")
+tex_n.image = nrm_img
+nmap = nt.nodes.new("ShaderNodeNormalMap")
+nt.links.new(tex_a.outputs["Color"], bsdf.inputs["Base Color"])
+nt.links.new(tex_n.outputs["Color"], nmap.inputs["Color"])
+nt.links.new(nmap.outputs["Normal"], bsdf.inputs["Normal"])
+body.blend_method = "OPAQUE"
+
 # the glb carries geometry, UVs and skin only: textures ship beside it and the view binds them
 for nm in ("orig",):
     if nm in mesh.uv_layers:
